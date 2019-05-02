@@ -24,13 +24,15 @@ func TestNew(t *testing.T) {
 			initConfigFunc: func(s string) (*config.Config, error) {
 				return &config.Config{
 					BitBar: &config.BitBar{
-						FormulaPath: "formula_path",
+						FormulaPath:  "formula_path",
+						PluginFolder: "plugin_folder",
 					},
 				}, nil
 			},
 			want: &config.Config{
 				BitBar: &config.BitBar{
-					FormulaPath: "formula_path",
+					FormulaPath:  "formula_path",
+					PluginFolder: "plugin_folder",
 				},
 			},
 			wantErr: false,
@@ -53,6 +55,9 @@ func TestNew(t *testing.T) {
 			assert.Equal(t, tc.want, got)
 			assert.Equal(t, tc.wantErr, err != nil)
 
+			if got != nil {
+				testutil.RemoveAll(t, got.PluginFolder)
+			}
 			reset()
 		})
 	}

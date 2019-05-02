@@ -45,6 +45,9 @@ func New() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := os.MkdirAll(conf.BitBar.PluginFolder, 0755); err != nil {
+		return nil, err
+	}
 	return conf, nil
 }
 
@@ -55,8 +58,9 @@ func newDefaultViper(configDir string) (*viper.Viper, error) {
 	v.SetConfigName("config")
 	v.AddConfigPath(configDir)
 
-	v.SetDefault("bitbar.formula_path", filepath.Join(configDir, "formula"))
+	v.SetDefault("bitbar.formula_path", filepath.Join(configDir, "formula.yaml"))
 	v.SetDefault("bitbar.plugin_folder", filepath.Join(configDir, "plugins"))
+	v.SetDefault("github.token", "")
 
 	return v, nil
 }
