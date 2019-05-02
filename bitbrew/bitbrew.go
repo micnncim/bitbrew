@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -148,5 +149,32 @@ func (s *service) Uninstall(p *plugin.Plugin) error {
 	}
 	s.plugins = ps
 
+	return s.Save()
+}
+
+func (s *service) addFormula(p *plugin.Plugin) error {
+	if err := s.Load(); err != nil {
+		if err == ErrFormulaNotExist {
+			s.plugins = plugin.Plugins{p}
+			return s.Save()
+		}
+		return err
+	}
+	s.plugins = append(s.plugins, p)
+	log.Printf("%#v", s.Plugins())
+	return s.Save()
+}
+
+func (s *service) removeFormula(p *plugin.Plugin) error {
+	if err := s.Load(); err != nil {
+		return err
+	}
+	ps := make(plugin.Plugins, 0, len(s.plugins)-1)
+	for _, localPlugin := range s.plugins {
+		if localPlugin.Filename != p.Filename {
+			ps = append(ps, localPlugin)
+		}
+	}
+	s.plugins = ps
 	return s.Save()
 }

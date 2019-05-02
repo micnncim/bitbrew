@@ -154,3 +154,90 @@ func Test_service_Install(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_addFormula(t *testing.T) {
+	cases := []struct {
+		name    string
+		plugin  *plugin.Plugin
+		wantErr bool
+	}{
+		{
+			name:    "add plugin to formula",
+			plugin:  &plugin.Plugin{Filename: "filename_added"},
+			wantErr: false,
+		},
+		{
+			name:    "create formula and add plugin",
+			plugin:  &plugin.Plugin{Filename: "filename_added"},
+			wantErr: false,
+		},
+	}
+
+	defer testutil.Mkdir(t, "tmp")()
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			tmpFormulaPath := filepath.Join("tmp", testutil.NormalizeTestName(tc.name)+".yaml")
+
+			s := new(bitbrew.ExportService)
+			s.ExportSetFormulaPath(tmpFormulaPath)
+
+			fixtureFormulaPath := filepath.Join("testdata", "fixtures", testutil.NormalizeTestName(tc.name)+".yaml")
+			testutil.CopyFile(t, fixtureFormulaPath, tmpFormulaPath)
+
+			err := bitbrew.ExportServiceAddFormula(s, tc.plugin)
+			assert.Equal(t, tc.wantErr, err != nil)
+
+			golden := filepath.Join("testdata", testutil.NormalizeTestName(tc.name)+".yaml.golden")
+			if *update {
+				buf := testutil.ReadFile(t, tmpFormulaPath)
+				testutil.WriteFile(t, golden, buf)
+			}
+
+			want := testutil.ReadFile(t, golden)
+			got := testutil.ReadFile(t, tmpFormulaPath)
+			assert.Equal(t, string(want), string(got))
+		})
+	}
+}
+
+func Test_service_removeFormula(t *testing.T) {
+	cases := []struct {
+		name    string
+		plugin  *plugin.Plugin
+		wantErr bool
+	}{
+		{
+			name:    "remove plugin from formula",
+			plugin:  &plugin.Plugin{Filename: "filename_removed"},
+			wantErr: false,
+		},
+	}
+
+	defer testutil.Mkdir(t, "tmp")()
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			tmpFormulaPath := filepath.Join("tmp", testutil.NormalizeTestName(tc.name)+".yaml")
+
+			s := new(bitbrew.ExportService)
+			s.ExportSetFormulaPath(tmpFormulaPath)
+
+			fixtureFormulaPath := filepath.Join("testdata", "fixtures", testutil.NormalizeTestName(tc.name)+".yaml")
+			testutil.CopyFile(t, fixtureFormulaPath, tmpFormulaPath)
+
+			err := bitbrew.ExportServiceRemoveFormula(s, tc.plugin)
+			assert.Equal(t, tc.wantErr, err != nil)
+
+			golden := filepath.Join("testdata", testutil.NormalizeTestName(tc.name)+".yaml.golden")
+			if *update {
+				buf := testutil.ReadFile(t, tmpFormulaPath)
+				testutil.WriteFile(t, golden, buf)
+			}
+
+			want := testutil.ReadFile(t, golden)
+			got := testutil.ReadFile(t, tmpFormulaPath)
+			assert.Equal(t, string(want), string(got))
+		})
+	}
+}

@@ -8,6 +8,11 @@ type (
 	ExportService = service
 )
 
+var (
+	ExportServiceAddFormula    = (*service).addFormula
+	ExportServiceRemoveFormula = (*service).removeFormula
+)
+
 func (s *ExportService) ExportPlugins() plugin.Plugins {
 	return s.plugins
 }
