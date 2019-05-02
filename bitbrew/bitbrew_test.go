@@ -61,8 +61,17 @@ func Test_service_Save(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "save plugins",
+			name: "save plugins if formula not exist",
 			plugins: plugin.Plugins{
+				{Name: "name", Filename: "filename"},
+				{Name: "name", Filename: "filename"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "update formula and save plugins",
+			plugins: plugin.Plugins{
+				{Name: "name", Filename: "filename"},
 				{Name: "name", Filename: "filename"},
 				{Name: "name", Filename: "filename"},
 			},
@@ -70,18 +79,24 @@ func Test_service_Save(t *testing.T) {
 		},
 	}
 
+	defer testutil.Mkdir(t, "tmp")()
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			tmpFilePath := filepath.Join("testdata", testutil.NormalizeTestName(tc.name)+".yaml")
+			tmpFormulaPath := filepath.Join("tmp", testutil.NormalizeTestName(tc.name)+".yaml")
 
 			s := new(bitbrew.ExportService)
-			s.ExportSetFormulaPath(tmpFilePath)
+			s.ExportSetFormulaPath(tmpFormulaPath)
 			s.ExportSetPlugins(tc.plugins)
+
+			// For updating formula case
+			fixtureFormulaPath := filepath.Join("testdata", "fixtures", testutil.NormalizeTestName(tc.name)+".yaml")
+			testutil.CopyFile(t, fixtureFormulaPath, tmpFormulaPath)
 
 			err := s.Save()
 			assert.Equal(t, tc.wantErr, err != nil)
 
-			got := testutil.ReadFile(t, tmpFilePath)
+			got := testutil.ReadFile(t, tmpFormulaPath)
 
 			golden := filepath.Join("testdata", testutil.NormalizeTestName(tc.name)+".yaml.golden")
 			if *update {
@@ -90,8 +105,6 @@ func Test_service_Save(t *testing.T) {
 
 			want := testutil.ReadFile(t, golden)
 			assert.Equal(t, string(want), string(got))
-
-			testutil.RemoveFile(t, tmpFilePath)
 		})
 	}
 }
