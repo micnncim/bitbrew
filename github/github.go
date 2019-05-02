@@ -13,6 +13,7 @@ import (
 
 type Service interface {
 	Search(ctx context.Context, q string) (plugin.Plugins, error)
+	SearchByFilename(ctx context.Context, q string) (plugin.Plugins, error)
 }
 
 type githubSearchService interface {
@@ -83,6 +84,37 @@ func (s *service) Search(ctx context.Context, q string) (plugin.Plugins, error) 
 				Name:         name,
 				Filename:     *r.Name,
 				Description:  extractByTagFunc(textMatches, closedTagDescPattern, leftTagDescPattern),
+				Path:         *r.Path,
+				BitBarURL:    fmt.Sprintf(baseBitBarURL, *r.Path),
+				GitHubURL:    *r.HTMLURL,
+				GitHubRawURL: fmt.Sprintf(baseGitHubRawURL, *r.Repository.Owner.Login, *r.Repository.Name, *r.Path),
+			})
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
+	}
+
+	return plugins, nil
+}
+
+func (s *service) SearchByFilename(ctx context.Context, q string) (plugin.Plugins, error) {
+	opt := github.ListOptions{PerPage: 20}
+	var plugins plugin.Plugins
+
+	for {
+		result, resp, err := s.githubSearchService.Code(ctx, q, &github.SearchOptions{
+			ListOptions: opt,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, r := range result.CodeResults {
+			plugins = append(plugins, &plugin.Plugin{
+				Filename:     *r.Name,
 				Path:         *r.Path,
 				BitBarURL:    fmt.Sprintf(baseBitBarURL, *r.Path),
 				GitHubURL:    *r.HTMLURL,
