@@ -1,0 +1,5 @@
+bitbar:
+  formula_path: updated_formula_path
+  plugin_folder: updated_plugin_folder
+github:
+  token: token
