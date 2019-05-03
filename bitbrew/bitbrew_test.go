@@ -279,3 +279,48 @@ func Test_bitbrew_removeFormula(t *testing.T) {
 		})
 	}
 }
+
+func Test_bitbrew_diff(t *testing.T) {
+	cases := []struct {
+		name                string
+		wantShouldInstall   plugin.Plugins
+		wantShouldUninstall plugin.Plugins
+		wantErr             bool
+	}{
+		{
+			name: "plus and minus",
+			wantShouldInstall: plugin.Plugins{
+				{Filename: "filename1.sh"},
+			},
+			wantShouldUninstall: plugin.Plugins{
+				{Filename: "filename2.sh"},
+			},
+			wantErr: false,
+		},
+	}
+
+	defer testutil.RemoveAll(t, filepath.Join("testdata", "tmp"))
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			b := new(bitbrew.ExportBitbrew)
+
+			tmpPluginFolder := filepath.Join("testdata", "tmp", testutil.NormalizeTestName(tc.name))
+			b.ExportSetPluginFolder(tmpPluginFolder)
+			fixtureFormulaPath := filepath.Join("testdata", "fixtures", testutil.NormalizeTestName(tc.name)+".yaml")
+			b.ExportSetFormulaPath(fixtureFormulaPath)
+
+			// Copy directory
+			fixturePluginFolder := filepath.Join("testdata", "fixtures", testutil.NormalizeTestName(tc.name))
+			testutil.Mkdir(t, tmpPluginFolder)
+			for _, p := range tc.wantShouldUninstall {
+				testutil.CopyFile(t, filepath.Join(fixturePluginFolder, p.Filename), filepath.Join(tmpPluginFolder, p.Filename))
+			}
+
+			gotShouldInstall, gotShouldUninstall, err := bitbrew.ExportBitbrewDiff(b)
+			assert.Equal(t, tc.wantShouldInstall, gotShouldInstall)
+			assert.Equal(t, tc.wantShouldUninstall, gotShouldUninstall)
+			assert.Equal(t, tc.wantErr, err != nil)
+		})
+	}
+}

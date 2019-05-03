@@ -133,8 +133,42 @@ func (b *bitbrew) download(p *plugin.Plugin) error {
 	return ioutil.WriteFile(filepath.Join(b.pluginFolder, p.Filename), buf, 0755)
 }
 
+func (b *bitbrew) downloadMulti(ps plugin.Plugins) error {
+	eg := errgroup.Group{}
+	for _, p := range ps {
+		p := p
+		eg.Go(func() error {
+			if err := b.download(p); err != nil {
+				return err
+			}
+			return nil
+		})
+		if err := eg.Wait(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (b *bitbrew) remove(p *plugin.Plugin) error {
 	return os.Remove(filepath.Join(b.pluginFolder, p.Filename))
+}
+
+func (b *bitbrew) removeMulti(ps plugin.Plugins) error {
+	eg := errgroup.Group{}
+	for _, p := range ps {
+		p := p
+		eg.Go(func() error {
+			if err := b.remove(p); err != nil {
+				return err
+			}
+			return nil
+		})
+		if err := eg.Wait(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (b *bitbrew) addFormula(p *plugin.Plugin) error {
@@ -164,6 +198,25 @@ func (b *bitbrew) removeFormula(p *plugin.Plugin) error {
 }
 
 func (b *bitbrew) Sync() (installed plugin.Plugins, uninstalled plugin.Plugins, err error) {
+	var shouldInstall, shouldUninstall plugin.Plugins
+	shouldInstall, shouldUninstall, err = b.diff()
+	if err != nil {
+		return
+	}
+
+	if err = b.downloadMulti(shouldInstall); err != nil {
+		return
+	}
+	if err = b.removeMulti(shouldUninstall); err != nil {
+		return
+	}
+
+	installed = shouldInstall
+	uninstalled = shouldUninstall
+	return
+}
+
+func (b *bitbrew) diff() (shouldInstall plugin.Plugins, shouldUninstall plugin.Plugins, err error) {
 	if !b.formulaExists() {
 		return
 	}
@@ -201,42 +254,16 @@ func (b *bitbrew) Sync() (installed plugin.Plugins, uninstalled plugin.Plugins, 
 		installedPlugins[p.Filename] = p
 	}
 
-	installed = make(plugin.Plugins, 0, len(fp))
+	shouldInstall = make(plugin.Plugins, 0, len(fp))
 	for filename, p := range formulaPlugins {
 		if _, ok := installedPlugins[filename]; !ok {
-			installed = append(installed, p)
+			shouldInstall = append(shouldInstall, p)
 		}
 	}
-	eg := errgroup.Group{}
-	for _, p := range installed {
-		p := p
-		eg.Go(func() error {
-			if err := b.download(p); err != nil {
-				return err
-			}
-			return nil
-		})
-		if err = eg.Wait(); err != nil {
-			return
-		}
-	}
-
-	uninstalled = make(plugin.Plugins, 0, len(ip))
+	shouldUninstall = make(plugin.Plugins, 0, len(ip))
 	for filename, p := range installedPlugins {
 		if _, ok := formulaPlugins[filename]; !ok {
-			uninstalled = append(uninstalled, p)
-		}
-	}
-	for _, p := range uninstalled {
-		p := p
-		eg.Go(func() error {
-			if err := b.remove(p); err != nil {
-				return err
-			}
-			return nil
-		})
-		if err = eg.Wait(); err != nil {
-			return
+			shouldUninstall = append(shouldUninstall, p)
 		}
 	}
 

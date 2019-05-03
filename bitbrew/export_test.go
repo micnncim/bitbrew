@@ -13,6 +13,7 @@ var (
 	ExportBitbrewRemove        = (*bitbrew).remove
 	ExportBitbrewAddFormula    = (*bitbrew).addFormula
 	ExportBitbrewRemoveFormula = (*bitbrew).removeFormula
+	ExportBitbrewDiff          = (*bitbrew).diff
 )
 
 func (b *ExportBitbrew) ExportPlugins() plugin.Plugins {
