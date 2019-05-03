@@ -112,13 +112,14 @@ func Test_bitbrew_Save(t *testing.T) {
 func Test_bitbrew_download(t *testing.T) {
 	cases := []struct {
 		name    string
-		plugin  *plugin.Plugin
+		plugins plugin.Plugins
 		wantErr bool
 	}{
 		{
-			name: "download script",
-			plugin: &plugin.Plugin{
-				Filename: "download_script.sh",
+			name: "download scripts",
+			plugins: plugin.Plugins{
+				{Filename: "download_scripts_1.sh"},
+				{Filename: "download_scripts_2.sh"},
 			},
 			wantErr: false,
 		},
@@ -129,29 +130,37 @@ func Test_bitbrew_download(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			golden := filepath.Join("testdata", testutil.NormalizeTestName(tc.name)+".sh.golden")
-
 			// Mock server
-			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				_, err := w.Write(testutil.ReadFile(t, golden))
-				require.NoError(t, err)
-			}))
+			for _, p := range tc.plugins {
+				golden := filepath.Join("testdata", p.Filename+".golden")
 
-			tc.plugin.GitHubRawURL = srv.URL
+				srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					_, err := w.Write(testutil.ReadFile(t, golden))
+					require.NoError(t, err)
+				}))
+				for _, p := range tc.plugins {
+					p.GitHubRawURL = srv.URL
+				}
+			}
+
 			b := new(bitbrew.ExportBitbrew)
 			b.ExportSetPluginFolder(tmpPluginFolder)
 
-			err := bitbrew.ExportBitbrewDownload(b, tc.plugin)
+			err := bitbrew.ExportBitbrewDownload(b, tc.plugins...)
 			assert.Equal(t, tc.wantErr, err != nil)
 
-			got := testutil.ReadFile(t, filepath.Join(tmpPluginFolder, tc.plugin.Filename))
+			for _, p := range tc.plugins {
+				golden := filepath.Join("testdata", p.Filename+".golden")
 
-			if *update {
-				testutil.WriteFile(t, golden, got)
+				got := testutil.ReadFile(t, filepath.Join(tmpPluginFolder, p.Filename))
+
+				if *update {
+					testutil.WriteFile(t, golden, got)
+				}
+
+				want := testutil.ReadFile(t, golden)
+				assert.Equal(t, string(want), string(got))
 			}
-
-			want := testutil.ReadFile(t, golden)
-			assert.Equal(t, string(want), string(got))
 		})
 	}
 }
@@ -159,13 +168,14 @@ func Test_bitbrew_download(t *testing.T) {
 func Test_bitbrew_remove(t *testing.T) {
 	cases := []struct {
 		name    string
-		plugin  *plugin.Plugin
+		plugins plugin.Plugins
 		wantErr bool
 	}{
 		{
-			name: "remove script",
-			plugin: &plugin.Plugin{
-				Filename: "remove_script.sh",
+			name: "remove scripts",
+			plugins: plugin.Plugins{
+				{Filename: "remove_scripts_1.sh"},
+				{Filename: "remove_scripts_2.sh"},
 			},
 			wantErr: false,
 		},
@@ -177,18 +187,20 @@ func Test_bitbrew_remove(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			fixtureScript := filepath.Join(fixtures, testutil.NormalizeTestName(tc.name)+".sh")
-			tmpScript := filepath.Join(tmpPluginFolder, testutil.NormalizeTestName(tc.name)+".sh")
-			testutil.CopyFile(t, fixtureScript, tmpScript)
+			for _, p := range tc.plugins {
+				fixtureScript := filepath.Join(fixtures, p.Filename)
+				tmpScript := filepath.Join(tmpPluginFolder, p.Filename)
+				testutil.CopyFile(t, fixtureScript, tmpScript)
+			}
 
 			b := new(bitbrew.ExportBitbrew)
 			b.ExportSetPluginFolder(tmpPluginFolder)
 
-			err := bitbrew.ExportBitbrewRemove(b, tc.plugin)
+			err := bitbrew.ExportBitbrewRemove(b, tc.plugins...)
 			assert.Equal(t, tc.wantErr, err != nil)
 
-			exists := testutil.IsExists(t, tmpScript)
-			assert.Equal(t, false, exists)
+			files := testutil.ReadDir(t, tmpPluginFolder)
+			assert.Equal(t, 0, len(files))
 		})
 	}
 }

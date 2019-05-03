@@ -119,29 +119,22 @@ func (b *bitbrew) Uninstall(p *plugin.Plugin) error {
 	return b.removeFormula(p)
 }
 
-func (b *bitbrew) download(p *plugin.Plugin) error {
-	resp, err := http.Get(p.GitHubRawURL)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	buf, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	return ioutil.WriteFile(filepath.Join(b.pluginFolder, p.Filename), buf, 0755)
-}
-
-func (b *bitbrew) downloadMulti(ps plugin.Plugins) error {
+func (b *bitbrew) download(ps ...*plugin.Plugin) error {
 	eg := errgroup.Group{}
 	for _, p := range ps {
 		p := p
 		eg.Go(func() error {
-			if err := b.download(p); err != nil {
+			resp, err := http.Get(p.GitHubRawURL)
+			if err != nil {
 				return err
 			}
-			return nil
+			defer resp.Body.Close()
+
+			buf, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return err
+			}
+			return ioutil.WriteFile(filepath.Join(b.pluginFolder, p.Filename), buf, 0755)
 		})
 		if err := eg.Wait(); err != nil {
 			return err
@@ -150,16 +143,12 @@ func (b *bitbrew) downloadMulti(ps plugin.Plugins) error {
 	return nil
 }
 
-func (b *bitbrew) remove(p *plugin.Plugin) error {
-	return os.Remove(filepath.Join(b.pluginFolder, p.Filename))
-}
-
-func (b *bitbrew) removeMulti(ps plugin.Plugins) error {
+func (b *bitbrew) remove(ps ...*plugin.Plugin) error {
 	eg := errgroup.Group{}
 	for _, p := range ps {
 		p := p
 		eg.Go(func() error {
-			if err := b.remove(p); err != nil {
+			if err := os.Remove(filepath.Join(b.pluginFolder, p.Filename)); err != nil {
 				return err
 			}
 			return nil
@@ -204,10 +193,10 @@ func (b *bitbrew) Sync() (installed plugin.Plugins, uninstalled plugin.Plugins, 
 		return
 	}
 
-	if err = b.downloadMulti(shouldInstall); err != nil {
+	if err = b.download(shouldInstall...); err != nil {
 		return
 	}
-	if err = b.removeMulti(shouldUninstall); err != nil {
+	if err = b.remove(shouldUninstall...); err != nil {
 		return
 	}
 
