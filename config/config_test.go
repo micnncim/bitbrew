@@ -133,7 +133,7 @@ func Test_initConfig_CreateIfNotExist(t *testing.T) {
 	// Disable Edit()
 	defer config.ExportSetEditFunc(func() error { return nil })()
 
-	tmpDir := filepath.Join("testdata", "tmp")
+	tmpConfigDir := filepath.Join("testdata", "tmp")
 
 	cases := []struct {
 		name                string
@@ -141,14 +141,13 @@ func Test_initConfig_CreateIfNotExist(t *testing.T) {
 		want                *config.Config
 		wantErr             bool
 	}{
-
 		{
 			name: "create config if not exist",
 			newDefaultViperFunc: func(string) (*viper.Viper, error) {
 				v := viper.New()
 				v.SetConfigType("yaml")
 				v.SetConfigName("create_config_if_not_exist")
-				v.AddConfigPath(tmpDir)
+				v.AddConfigPath(tmpConfigDir)
 				v.SetDefault("bitbar.formula_path", "formula_path")
 				v.SetDefault("bitbar.plugin_folder", "plugin_folder")
 				return v, nil
@@ -163,7 +162,7 @@ func Test_initConfig_CreateIfNotExist(t *testing.T) {
 		},
 	}
 
-	defer testutil.Mkdir(t, tmpDir)()
+	defer testutil.Mkdir(t, tmpConfigDir)()
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -171,7 +170,7 @@ func Test_initConfig_CreateIfNotExist(t *testing.T) {
 			confName := testutil.NormalizeTestName(tc.name) + ".yaml"
 			resetConfig := config.ExportSetDefaultConfigName(confName)
 
-			got, err := config.ExportInitConfigFunc(tmpDir)
+			got, err := config.ExportInitConfigFunc(tmpConfigDir)
 			assert.Equal(t, tc.want, got)
 			assert.Equal(t, tc.wantErr, err != nil)
 

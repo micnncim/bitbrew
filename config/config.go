@@ -60,7 +60,7 @@ func newDefaultViper(configDir string) (*viper.Viper, error) {
 
 	v.SetDefault("bitbar.formula_path", filepath.Join(configDir, "formula.yaml"))
 	v.SetDefault("bitbar.plugin_folder", filepath.Join(configDir, "plugins"))
-	v.SetDefault("github.token", "")
+	v.SetDefault("github.token", "<GITHUB_ACCESS_TOKEN>")
 
 	return v, nil
 }
