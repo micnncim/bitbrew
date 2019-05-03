@@ -5,7 +5,7 @@ import (
 )
 
 type Plugin struct {
-	Name         string `yaml:",omitempty"`
+	Name         string `yaml:"-"`
 	Filename     string `yaml:",omitempty"`
 	Description  string `yaml:"-"`
 	Path         string `yaml:"-"`
