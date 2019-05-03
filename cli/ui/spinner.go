@@ -8,26 +8,26 @@ import (
 )
 
 const (
-	spinnerSymbol = 14
+	symbol = 14
 )
 
 type Spinner struct {
 	spinner *spinner.Spinner
-	text    string
+	suffix  string
 }
 
-func NewSpinner(text string) *Spinner {
+func NewSpinner(suffix string) *Spinner {
 	return &Spinner{
-		spinner: spinner.New(spinner.CharSets[spinnerSymbol], 100*time.Millisecond),
-		text:    text,
+		spinner: spinner.New(spinner.CharSets[symbol], 100*time.Millisecond),
+		suffix:  suffix,
 	}
 }
 
 func (s *Spinner) Start() {
 	s.spinner.Writer = os.Stdout
 	s.spinner.Prefix = "\r"
-	if len(s.text) > 0 {
-		s.spinner.Suffix = "  " + s.text
+	if len(s.suffix) > 0 {
+		s.spinner.Suffix = "  " + s.suffix
 	}
 	s.spinner.HideCursor = true
 	s.spinner.Start()

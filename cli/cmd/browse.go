@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/skratchdot/open-golang/open"
@@ -38,7 +37,7 @@ func Browse(c *cli.Context) error {
 	}
 
 	if len(plugins) != 1 {
-		fmt.Println("\nplugin not found. need to specify accurate filename")
+		ui.Errorf("\nplugin not found. need to specify accurate filename")
 		return nil
 	}
 

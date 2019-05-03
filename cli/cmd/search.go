@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"errors"
-	"fmt"
 	"os"
 
 	"github.com/urfave/cli"
@@ -38,10 +37,10 @@ func Search(c *cli.Context) error {
 	}
 
 	if len(plugins) == 0 {
-		fmt.Println("plugin not found")
+		ui.Errorf("\nplugin not found")
 		return nil
 	}
-	fmt.Printf("\n  %d plugins hit\n", len(plugins))
+	ui.Infof("\n✔ %d plugins hit\n", len(plugins))
 
 	tableWriter := ui.NewTableWriter(os.Stdout)
 	tableWriter.Show(plugins)

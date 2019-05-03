@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/urfave/cli"
 
 	"github.com/micnncim/bitbrew/cli/ui"
@@ -11,10 +9,6 @@ import (
 )
 
 func List(c *cli.Context) error {
-	s := ui.NewSpinner("Searching...")
-	s.Start()
-	defer s.Stop()
-
 	conf, err := config.New()
 	if err != nil {
 		return err
@@ -24,13 +18,17 @@ func List(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	plugins, err := bitbrew.ListLocal()
-	if err != nil {
+	if err := bitbrew.Load(); err != nil {
 		return err
 	}
 
-	tableWriter := ui.NewTableWriter(os.Stdout)
-	tableWriter.Show(plugins)
+	if len(bitbrew.Plugins()) != 0 {
+		ui.Errorf("no plugins\n")
+		return nil
+	}
+	for _, p := range bitbrew.Plugins() {
+		ui.Printf("%s\n", p.Filename)
+	}
 
 	return nil
 }

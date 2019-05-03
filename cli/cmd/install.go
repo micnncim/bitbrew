@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/k0kubun/pp"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 
@@ -37,9 +35,8 @@ func Install(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	pp.Println(plugins)
 	if len(plugins) != 1 {
-		fmt.Println("\nplugin not found. need to specify accurate filename")
+		ui.Errorf("\nplugin not found. need to specify accurate filename\n")
 		return nil
 	}
 
@@ -47,7 +44,7 @@ func Install(c *cli.Context) error {
 	if err := bitbrew.Install(plugin); err != nil {
 		return err
 	}
-	fmt.Printf("%s installed!\n", plugin)
+	ui.Infof("\n✔ %s installed!\n", plugin.Filename)
 
 	return nil
 }

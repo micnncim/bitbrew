@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 
@@ -12,14 +10,9 @@ import (
 )
 
 func Uninstall(c *cli.Context) error {
-
 	if len(c.Args()) != 1 {
 		return errors.New("invalid argument")
 	}
-
-	s := ui.NewSpinner("Uninstalling...")
-	s.Start()
-	defer s.Stop()
 
 	conf, err := config.New()
 	if err != nil {
@@ -31,20 +24,19 @@ func Uninstall(c *cli.Context) error {
 		return err
 	}
 
-	plugins, err := bitbrew.ListLocal()
-	if err != nil {
+	if err := bitbrew.Load(); err != nil {
 		return err
 	}
-	for _, plugin := range plugins {
+	for _, plugin := range bitbrew.Plugins() {
 		if plugin.Filename == c.Args().First() {
 			if err := bitbrew.Uninstall(plugin); err != nil {
 				return err
 			}
-			fmt.Printf("%s uninstalled!\n", plugin)
+			ui.Printf("\n✔ %s uninstalled!\n", plugin.Filename)
 			return nil
 		}
 	}
 
-	fmt.Printf("%s not found\n", c.Args().First())
+	ui.Errorf("\n%s not found\n", c.Args().First())
 	return nil
 }
