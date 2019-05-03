@@ -18,7 +18,7 @@ import (
 
 var update = flag.Bool("update", false, "update golden files")
 
-func Test_service_Load(t *testing.T) {
+func Test_bitbrew_Load(t *testing.T) {
 	cases := []struct {
 		name    string
 		want    plugin.Plugins
@@ -36,7 +36,7 @@ func Test_service_Load(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			s := new(bitbrew.ExportService)
+			s := new(bitbrew.ExportBitbrew)
 
 			golden := filepath.Join("testdata", testutil.NormalizeTestName(tc.name)+".yaml.golden")
 			if *update {
@@ -54,7 +54,7 @@ func Test_service_Load(t *testing.T) {
 	}
 }
 
-func Test_service_Save(t *testing.T) {
+func Test_bitbrew_Save(t *testing.T) {
 	cases := []struct {
 		name    string
 		plugins plugin.Plugins
@@ -85,7 +85,7 @@ func Test_service_Save(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tmpFormulaPath := filepath.Join("tmp", testutil.NormalizeTestName(tc.name)+".yaml")
 
-			s := new(bitbrew.ExportService)
+			s := new(bitbrew.ExportBitbrew)
 			s.ExportSetFormulaPath(tmpFormulaPath)
 			s.ExportSetPlugins(tc.plugins)
 
@@ -109,7 +109,7 @@ func Test_service_Save(t *testing.T) {
 	}
 }
 
-func Test_service_Install(t *testing.T) {
+func Test_bitbrew_Install(t *testing.T) {
 	cases := []struct {
 		name    string
 		plugin  *plugin.Plugin
@@ -137,7 +137,7 @@ func Test_service_Install(t *testing.T) {
 			}))
 
 			tc.plugin.GitHubRawURL = srv.URL
-			s := new(bitbrew.ExportService)
+			s := new(bitbrew.ExportBitbrew)
 			s.ExportSetPluginFolder(tmpDir)
 
 			err := s.Install(tc.plugin)
@@ -155,7 +155,7 @@ func Test_service_Install(t *testing.T) {
 	}
 }
 
-func Test_service_addFormula(t *testing.T) {
+func Test_bitbrew_addFormula(t *testing.T) {
 	cases := []struct {
 		name    string
 		plugin  *plugin.Plugin
@@ -179,13 +179,13 @@ func Test_service_addFormula(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tmpFormulaPath := filepath.Join("tmp", testutil.NormalizeTestName(tc.name)+".yaml")
 
-			s := new(bitbrew.ExportService)
+			s := new(bitbrew.ExportBitbrew)
 			s.ExportSetFormulaPath(tmpFormulaPath)
 
 			fixtureFormulaPath := filepath.Join("testdata", "fixtures", testutil.NormalizeTestName(tc.name)+".yaml")
 			testutil.CopyFile(t, fixtureFormulaPath, tmpFormulaPath)
 
-			err := bitbrew.ExportServiceAddFormula(s, tc.plugin)
+			err := bitbrew.ExportBitbrewAddFormula(s, tc.plugin)
 			assert.Equal(t, tc.wantErr, err != nil)
 
 			golden := filepath.Join("testdata", testutil.NormalizeTestName(tc.name)+".yaml.golden")
@@ -201,7 +201,7 @@ func Test_service_addFormula(t *testing.T) {
 	}
 }
 
-func Test_service_removeFormula(t *testing.T) {
+func Test_bitbrew_removeFormula(t *testing.T) {
 	cases := []struct {
 		name    string
 		plugin  *plugin.Plugin
@@ -220,13 +220,13 @@ func Test_service_removeFormula(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tmpFormulaPath := filepath.Join("tmp", testutil.NormalizeTestName(tc.name)+".yaml")
 
-			s := new(bitbrew.ExportService)
+			s := new(bitbrew.ExportBitbrew)
 			s.ExportSetFormulaPath(tmpFormulaPath)
 
 			fixtureFormulaPath := filepath.Join("testdata", "fixtures", testutil.NormalizeTestName(tc.name)+".yaml")
 			testutil.CopyFile(t, fixtureFormulaPath, tmpFormulaPath)
 
-			err := bitbrew.ExportServiceRemoveFormula(s, tc.plugin)
+			err := bitbrew.ExportBitbrewRemoveFormula(s, tc.plugin)
 			assert.Equal(t, tc.wantErr, err != nil)
 
 			golden := filepath.Join("testdata", testutil.NormalizeTestName(tc.name)+".yaml.golden")

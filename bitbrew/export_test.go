@@ -5,26 +5,26 @@ import (
 )
 
 type (
-	ExportService = service
+	ExportBitbrew = bitbrew
 )
 
 var (
-	ExportServiceAddFormula    = (*service).addFormula
-	ExportServiceRemoveFormula = (*service).removeFormula
+	ExportBitbrewAddFormula    = (*bitbrew).addFormula
+	ExportBitbrewRemoveFormula = (*bitbrew).removeFormula
 )
 
-func (s *ExportService) ExportPlugins() plugin.Plugins {
-	return s.plugins
+func (b *ExportBitbrew) ExportPlugins() plugin.Plugins {
+	return b.plugins
 }
 
-func (s *ExportService) ExportSetPlugins(plugins plugin.Plugins) {
-	s.plugins = plugins
+func (b *ExportBitbrew) ExportSetPlugins(plugins plugin.Plugins) {
+	b.plugins = plugins
 }
 
-func (s *ExportService) ExportSetFormulaPath(formulaPath string) {
-	s.formulaPath = formulaPath
+func (b *ExportBitbrew) ExportSetFormulaPath(formulaPath string) {
+	b.formulaPath = formulaPath
 }
 
-func (s *ExportService) ExportSetPluginFolder(pluginFolder string) {
-	s.pluginFolder = pluginFolder
+func (b *ExportBitbrew) ExportSetPluginFolder(pluginFolder string) {
+	b.pluginFolder = pluginFolder
 }

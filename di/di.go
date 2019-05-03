@@ -7,14 +7,13 @@ import (
 	"github.com/micnncim/bitbrew/github"
 )
 
-func InitBitBrew(token, formulaPath, pluginFolder string) (bitbrew.Service, error) {
+func InitBitBrew(token, formulaPath, pluginFolder string) (bitbrew.Bitbrew, error) {
 	if token == "" {
 		return nil, errors.New("github token is missing")
 	}
-
 	gh, err := github.NewService(token)
 	if err != nil {
 		return nil, err
 	}
-	return bitbrew.NewService(gh, formulaPath, pluginFolder), nil
+	return bitbrew.New(gh, formulaPath, pluginFolder), nil
 }
