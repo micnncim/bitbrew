@@ -32,11 +32,11 @@ func Uninstall(c *cli.Context) error {
 			if err := bitbrew.Uninstall(plugin); err != nil {
 				return err
 			}
-			ui.Printf("\n✔ %s uninstalled!\n", plugin.Filename)
+			ui.Warnf("✔ %s uninstalled!\n", plugin.Filename)
 			return nil
 		}
 	}
 
-	ui.Errorf("\n%s not found\n", c.Args().First())
+	ui.Errorf("%s not found\n", c.Args().First())
 	return nil
 }

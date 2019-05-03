@@ -14,6 +14,10 @@ func Infof(format string, args ...interface{}) {
 	color.New(color.FgGreen).Printf(format, args...)
 }
 
+func Warnf(format string, args ...interface{}) {
+	color.New(color.FgYellow).Printf(format, args...)
+}
+
 func Errorf(format string, args ...interface{}) {
 	color.New(color.FgRed).Fprintf(os.Stderr, format, args...)
 }

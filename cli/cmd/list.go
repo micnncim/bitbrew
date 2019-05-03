@@ -22,8 +22,8 @@ func List(c *cli.Context) error {
 		return err
 	}
 
-	if len(bitbrew.Plugins()) != 0 {
-		ui.Errorf("no plugins\n")
+	if len(bitbrew.Plugins()) == 0 {
+		ui.Warnf("no plugins\n")
 		return nil
 	}
 	for _, p := range bitbrew.Plugins() {
