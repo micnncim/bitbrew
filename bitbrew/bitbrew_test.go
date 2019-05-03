@@ -36,7 +36,7 @@ func Test_bitbrew_Load(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			s := new(bitbrew.ExportBitbrew)
+			b := new(bitbrew.ExportBitbrew)
 
 			golden := filepath.Join("testdata", testutil.NormalizeTestName(tc.name)+".yaml.golden")
 			if *update {
@@ -44,11 +44,11 @@ func Test_bitbrew_Load(t *testing.T) {
 				require.NoError(t, err)
 				testutil.WriteFile(t, golden, buf)
 			}
-			s.ExportSetFormulaPath(golden)
+			b.ExportSetFormulaPath(golden)
 
-			err := s.Load()
+			err := b.Load()
 
-			assert.Equal(t, tc.want, s.ExportPlugins())
+			assert.Equal(t, tc.want, b.ExportPlugins())
 			assert.Equal(t, tc.wantErr, err != nil)
 		})
 	}
@@ -85,15 +85,15 @@ func Test_bitbrew_Save(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tmpFormulaPath := filepath.Join("tmp", testutil.NormalizeTestName(tc.name)+".yaml")
 
-			s := new(bitbrew.ExportBitbrew)
-			s.ExportSetFormulaPath(tmpFormulaPath)
-			s.ExportSetPlugins(tc.plugins)
+			b := new(bitbrew.ExportBitbrew)
+			b.ExportSetFormulaPath(tmpFormulaPath)
+			b.ExportSetPlugins(tc.plugins)
 
 			// For updating formula case
 			fixtureFormulaPath := filepath.Join("testdata", "fixtures", testutil.NormalizeTestName(tc.name)+".yaml")
 			testutil.CopyFile(t, fixtureFormulaPath, tmpFormulaPath)
 
-			err := s.Save()
+			err := b.Save()
 			assert.Equal(t, tc.wantErr, err != nil)
 
 			got := testutil.ReadFile(t, tmpFormulaPath)
@@ -109,41 +109,42 @@ func Test_bitbrew_Save(t *testing.T) {
 	}
 }
 
-func Test_bitbrew_Install(t *testing.T) {
+func Test_bitbrew_download(t *testing.T) {
 	cases := []struct {
 		name    string
 		plugin  *plugin.Plugin
 		wantErr bool
 	}{
 		{
-			name: "install script",
+			name: "download script",
 			plugin: &plugin.Plugin{
-				Filename: "install_script.sh",
+				Filename: "download_script.sh",
 			},
 			wantErr: false,
 		},
 	}
 
-	tmpDir := filepath.Join("testdata", "tmp")
-	defer testutil.Mkdir(t, tmpDir)()
+	tmpPluginFolder := filepath.Join("testdata", "tmp")
+	defer testutil.Mkdir(t, tmpPluginFolder)()
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			golden := filepath.Join("testdata", testutil.NormalizeTestName(tc.name)+".sh.golden")
 
+			// Mock server
 			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				_, err := w.Write(testutil.ReadFile(t, golden))
 				require.NoError(t, err)
 			}))
 
 			tc.plugin.GitHubRawURL = srv.URL
-			s := new(bitbrew.ExportBitbrew)
-			s.ExportSetPluginFolder(tmpDir)
+			b := new(bitbrew.ExportBitbrew)
+			b.ExportSetPluginFolder(tmpPluginFolder)
 
-			err := s.Install(tc.plugin)
+			err := bitbrew.ExportBitbrewDownload(b, tc.plugin)
 			assert.Equal(t, tc.wantErr, err != nil)
 
-			got := testutil.ReadFile(t, filepath.Join(tmpDir, tc.plugin.Filename))
+			got := testutil.ReadFile(t, filepath.Join(tmpPluginFolder, tc.plugin.Filename))
 
 			if *update {
 				testutil.WriteFile(t, golden, got)
@@ -151,6 +152,43 @@ func Test_bitbrew_Install(t *testing.T) {
 
 			want := testutil.ReadFile(t, golden)
 			assert.Equal(t, string(want), string(got))
+		})
+	}
+}
+
+func Test_bitbrew_remove(t *testing.T) {
+	cases := []struct {
+		name    string
+		plugin  *plugin.Plugin
+		wantErr bool
+	}{
+		{
+			name: "remove script",
+			plugin: &plugin.Plugin{
+				Filename: "remove_script.sh",
+			},
+			wantErr: false,
+		},
+	}
+
+	tmpPluginFolder := filepath.Join("testdata", "tmp")
+	defer testutil.Mkdir(t, tmpPluginFolder)()
+	fixtures := filepath.Join("testdata", "fixtures")
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			fixtureScript := filepath.Join(fixtures, testutil.NormalizeTestName(tc.name)+".sh")
+			tmpScript := filepath.Join(tmpPluginFolder, testutil.NormalizeTestName(tc.name)+".sh")
+			testutil.CopyFile(t, fixtureScript, tmpScript)
+
+			b := new(bitbrew.ExportBitbrew)
+			b.ExportSetPluginFolder(tmpPluginFolder)
+
+			err := bitbrew.ExportBitbrewRemove(b, tc.plugin)
+			assert.Equal(t, tc.wantErr, err != nil)
+
+			exists := testutil.IsExists(t, tmpScript)
+			assert.Equal(t, false, exists)
 		})
 	}
 }
@@ -179,13 +217,13 @@ func Test_bitbrew_addFormula(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tmpFormulaPath := filepath.Join("tmp", testutil.NormalizeTestName(tc.name)+".yaml")
 
-			s := new(bitbrew.ExportBitbrew)
-			s.ExportSetFormulaPath(tmpFormulaPath)
+			b := new(bitbrew.ExportBitbrew)
+			b.ExportSetFormulaPath(tmpFormulaPath)
 
 			fixtureFormulaPath := filepath.Join("testdata", "fixtures", testutil.NormalizeTestName(tc.name)+".yaml")
 			testutil.CopyFile(t, fixtureFormulaPath, tmpFormulaPath)
 
-			err := bitbrew.ExportBitbrewAddFormula(s, tc.plugin)
+			err := bitbrew.ExportBitbrewAddFormula(b, tc.plugin)
 			assert.Equal(t, tc.wantErr, err != nil)
 
 			golden := filepath.Join("testdata", testutil.NormalizeTestName(tc.name)+".yaml.golden")
@@ -220,13 +258,13 @@ func Test_bitbrew_removeFormula(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tmpFormulaPath := filepath.Join("tmp", testutil.NormalizeTestName(tc.name)+".yaml")
 
-			s := new(bitbrew.ExportBitbrew)
-			s.ExportSetFormulaPath(tmpFormulaPath)
+			b := new(bitbrew.ExportBitbrew)
+			b.ExportSetFormulaPath(tmpFormulaPath)
 
 			fixtureFormulaPath := filepath.Join("testdata", "fixtures", testutil.NormalizeTestName(tc.name)+".yaml")
 			testutil.CopyFile(t, fixtureFormulaPath, tmpFormulaPath)
 
-			err := bitbrew.ExportBitbrewRemoveFormula(s, tc.plugin)
+			err := bitbrew.ExportBitbrewRemoveFormula(b, tc.plugin)
 			assert.Equal(t, tc.wantErr, err != nil)
 
 			golden := filepath.Join("testdata", testutil.NormalizeTestName(tc.name)+".yaml.golden")

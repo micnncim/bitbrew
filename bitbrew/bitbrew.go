@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v2"
 
 	"github.com/micnncim/bitbrew/github"
@@ -27,6 +28,7 @@ type Bitbrew interface {
 	Save() error
 	Install(p *plugin.Plugin) error
 	Uninstall(p *plugin.Plugin) error
+	Sync() (installed plugin.Plugins, uninstalled plugin.Plugins, err error)
 }
 
 type bitbrew struct {
@@ -104,6 +106,20 @@ func (b *bitbrew) formulaExists() bool {
 }
 
 func (b *bitbrew) Install(p *plugin.Plugin) error {
+	if err := b.download(p); err != nil {
+		return err
+	}
+	return b.addFormula(p)
+}
+
+func (b *bitbrew) Uninstall(p *plugin.Plugin) error {
+	if err := b.remove(p); err != nil {
+		return err
+	}
+	return b.removeFormula(p)
+}
+
+func (b *bitbrew) download(p *plugin.Plugin) error {
 	resp, err := http.Get(p.GitHubRawURL)
 	if err != nil {
 		return err
@@ -114,18 +130,11 @@ func (b *bitbrew) Install(p *plugin.Plugin) error {
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(filepath.Join(b.pluginFolder, p.Filename), buf, 0755); err != nil {
-		return err
-	}
-
-	return b.addFormula(p)
+	return ioutil.WriteFile(filepath.Join(b.pluginFolder, p.Filename), buf, 0755)
 }
 
-func (b *bitbrew) Uninstall(p *plugin.Plugin) error {
-	if err := os.Remove(filepath.Join(b.pluginFolder, p.Filename)); err != nil {
-		return err
-	}
-	return b.removeFormula(p)
+func (b *bitbrew) remove(p *plugin.Plugin) error {
+	return os.Remove(filepath.Join(b.pluginFolder, p.Filename))
 }
 
 func (b *bitbrew) addFormula(p *plugin.Plugin) error {
@@ -152,4 +161,84 @@ func (b *bitbrew) removeFormula(p *plugin.Plugin) error {
 	}
 	b.plugins = ps
 	return b.Save()
+}
+
+func (b *bitbrew) Sync() (installed plugin.Plugins, uninstalled plugin.Plugins, err error) {
+	if !b.formulaExists() {
+		return
+	}
+
+	// Load plugins in formula
+	var f *os.File
+	f, err = os.Open(b.formulaPath)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	var fp plugin.Plugins
+	if err = yaml.NewDecoder(f).Decode(&fp); err != nil {
+		return
+	}
+	formulaPlugins := make(map[string]*plugin.Plugin, len(fp))
+	for _, p := range fp {
+		formulaPlugins[p.Filename] = p
+	}
+
+	// Load plugins installed
+	var files []os.FileInfo
+	files, err = ioutil.ReadDir(b.pluginFolder)
+	if err != nil {
+		return
+	}
+	var ip plugin.Plugins
+	for _, f := range files {
+		ip = append(ip, &plugin.Plugin{
+			Filename: f.Name(),
+		})
+	}
+	installedPlugins := make(map[string]*plugin.Plugin, len(ip))
+	for _, p := range ip {
+		installedPlugins[p.Filename] = p
+	}
+
+	installed = make(plugin.Plugins, 0, len(fp))
+	for filename, p := range formulaPlugins {
+		if _, ok := installedPlugins[filename]; !ok {
+			installed = append(installed, p)
+		}
+	}
+	eg := errgroup.Group{}
+	for _, p := range installed {
+		p := p
+		eg.Go(func() error {
+			if err := b.download(p); err != nil {
+				return err
+			}
+			return nil
+		})
+		if err = eg.Wait(); err != nil {
+			return
+		}
+	}
+
+	uninstalled = make(plugin.Plugins, 0, len(ip))
+	for filename, p := range installedPlugins {
+		if _, ok := formulaPlugins[filename]; !ok {
+			uninstalled = append(uninstalled, p)
+		}
+	}
+	for _, p := range uninstalled {
+		p := p
+		eg.Go(func() error {
+			if err := b.remove(p); err != nil {
+				return err
+			}
+			return nil
+		})
+		if err = eg.Wait(); err != nil {
+			return
+		}
+	}
+
+	return
 }

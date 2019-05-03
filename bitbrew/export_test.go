@@ -9,6 +9,8 @@ type (
 )
 
 var (
+	ExportBitbrewDownload      = (*bitbrew).download
+	ExportBitbrewRemove        = (*bitbrew).remove
 	ExportBitbrewAddFormula    = (*bitbrew).addFormula
 	ExportBitbrewRemoveFormula = (*bitbrew).removeFormula
 )
