@@ -19,7 +19,6 @@ func Search(c *cli.Context) error {
 
 	s := ui.NewSpinner("Searching...")
 	s.Start()
-	defer s.Stop()
 
 	conf, err := config.New()
 	if err != nil {
@@ -30,17 +29,19 @@ func Search(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
 	ctx := context.Background()
 	plugins, err := bitbrew.Search(ctx, c.Args().First())
 	if err != nil {
 		return err
 	}
 
+	s.Stop()
 	if len(plugins) == 0 {
-		ui.Errorf("\nplugin not found")
+		ui.Errorf("plugin not found\n")
 		return nil
 	}
-	ui.Infof("\n✔ %d plugins hit\n", len(plugins))
+	ui.Infof("✔ %d plugins hit\n", len(plugins))
 
 	tableWriter := ui.NewTableWriter(os.Stdout)
 	tableWriter.Show(plugins)

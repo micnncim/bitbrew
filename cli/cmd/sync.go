@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/urfave/cli"
 
 	"github.com/micnncim/bitbrew/cli/ui"
@@ -13,7 +11,6 @@ import (
 func Sync(c *cli.Context) error {
 	s := ui.NewSpinner("Syncing...")
 	s.Start()
-	defer s.Stop()
 
 	conf, err := config.New()
 	if err != nil {
@@ -29,7 +26,8 @@ func Sync(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println()
+
+	s.Stop()
 	for _, p := range installed {
 		ui.Infof("✔ %s installed!\n", p.Filename)
 	}

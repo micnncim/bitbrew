@@ -19,7 +19,6 @@ func Browse(c *cli.Context) error {
 
 	s := ui.NewSpinner("Searching...")
 	s.Start()
-	defer s.Stop()
 
 	conf, err := config.New()
 	if err != nil {
@@ -30,14 +29,16 @@ func Browse(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
 	ctx := context.Background()
 	plugins, err := bitbrew.SearchByFilename(ctx, c.Args().First())
 	if err != nil {
 		return err
 	}
 
+	s.Stop()
 	if len(plugins) != 1 {
-		ui.Errorf("\nplugin not found. need to specify accurate filename")
+		ui.Errorf("plugin not found. need to specify accurate filename")
 		return nil
 	}
 

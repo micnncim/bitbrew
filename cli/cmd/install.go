@@ -15,10 +15,10 @@ func Install(c *cli.Context) error {
 	if len(c.Args()) != 1 {
 		return errors.New("invalid argument")
 	}
+	arg := c.Args().First()
 
 	s := ui.NewSpinner("Installing...")
 	s.Start()
-	defer s.Stop()
 
 	conf, err := config.New()
 	if err != nil {
@@ -30,13 +30,27 @@ func Install(c *cli.Context) error {
 		return err
 	}
 
+	// Check whether the plugin installed
+	if err := bitbrew.Load(); err != nil {
+		return err
+	}
+	for _, p := range bitbrew.Plugins() {
+		if arg == p.Filename {
+			s.Stop()
+			ui.Warnf("%s already installed\n", arg)
+			return nil
+		}
+	}
+
 	ctx := context.Background()
-	plugins, err := bitbrew.SearchByFilename(ctx, c.Args().First())
+	plugins, err := bitbrew.SearchByFilename(ctx, arg)
 	if err != nil {
 		return err
 	}
+
+	s.Stop()
 	if len(plugins) != 1 {
-		ui.Errorf("\nplugin not found. need to specify accurate filename\n")
+		ui.Errorf("plugin not found. need to specify accurate filename\n")
 		return nil
 	}
 
@@ -44,7 +58,7 @@ func Install(c *cli.Context) error {
 	if err := bitbrew.Install(plugin); err != nil {
 		return err
 	}
-	ui.Infof("\n✔ %s installed!\n", plugin.Filename)
+	ui.Infof("✔ %s installed!\n", plugin.Filename)
 
 	return nil
 }
