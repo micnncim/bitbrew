@@ -8,12 +8,12 @@ import (
 
 const version = "0.0.0"
 
-func New() *cli.App {
-	a := cli.NewApp()
-	a.Name = "bitbrew"
-	a.Usage = "BitBar plugin manager"
-	a.Version = version
-	a.Commands = cli.Commands{
+func New(opts ...Option) *cli.App {
+	app := cli.NewApp()
+	app.Name = "bitbrew"
+	app.Usage = "BitBar plugin manager"
+	app.Version = version
+	app.Commands = cli.Commands{
 		{
 			Name:    "install",
 			Aliases: []string{"i"},
@@ -56,5 +56,10 @@ func New() *cli.App {
 			Action:  cmd.Config,
 		},
 	}
-	return a
+
+	for _, opt := range opts {
+		opt(app)
+	}
+
+	return app
 }
