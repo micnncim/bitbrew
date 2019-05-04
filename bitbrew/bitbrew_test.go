@@ -9,7 +9,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v2"
 
 	"github.com/micnncim/bitbrew/bitbrew"
 	"github.com/micnncim/bitbrew/internal/testutil"
@@ -38,13 +37,8 @@ func Test_bitbrew_Load(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			b := new(bitbrew.ExportBitbrew)
 
-			golden := filepath.Join("testdata", testutil.NormalizeTestName(tc.name)+".yaml.golden")
-			if *update {
-				buf, err := yaml.Marshal(tc.want)
-				require.NoError(t, err)
-				testutil.WriteFile(t, golden, buf)
-			}
-			b.ExportSetFormulaPath(golden)
+			fixtureFormulaPath := filepath.Join("testdata", "fixtures", testutil.NormalizeTestName(tc.name)+".yaml")
+			b.ExportSetFormulaPath(fixtureFormulaPath)
 
 			err := b.Load()
 
@@ -125,7 +119,7 @@ func Test_bitbrew_download(t *testing.T) {
 		},
 	}
 
-	tmpPluginFolder := filepath.Join("testdata", "tmp")
+	tmpPluginFolder := "tmp"
 	defer testutil.Mkdir(t, tmpPluginFolder)()
 
 	for _, tc := range cases {
@@ -181,14 +175,13 @@ func Test_bitbrew_remove(t *testing.T) {
 		},
 	}
 
-	tmpPluginFolder := filepath.Join("testdata", "tmp")
+	tmpPluginFolder := "tmp"
 	defer testutil.Mkdir(t, tmpPluginFolder)()
-	fixtures := filepath.Join("testdata", "fixtures")
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			for _, p := range tc.plugins {
-				fixtureScript := filepath.Join(fixtures, p.Filename)
+				fixtureScript := filepath.Join("testdata", "fixtures", p.Filename)
 				tmpScript := filepath.Join(tmpPluginFolder, p.Filename)
 				testutil.CopyFile(t, fixtureScript, tmpScript)
 			}
@@ -311,13 +304,13 @@ func Test_bitbrew_diff(t *testing.T) {
 		},
 	}
 
-	defer testutil.RemoveAll(t, filepath.Join("testdata", "tmp"))
+	defer testutil.RemoveAll(t, filepath.Join("tmp"))
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			b := new(bitbrew.ExportBitbrew)
 
-			tmpPluginFolder := filepath.Join("testdata", "tmp", testutil.NormalizeTestName(tc.name))
+			tmpPluginFolder := filepath.Join("tmp", testutil.NormalizeTestName(tc.name))
 			b.ExportSetPluginFolder(tmpPluginFolder)
 			fixtureFormulaPath := filepath.Join("testdata", "fixtures", testutil.NormalizeTestName(tc.name)+".yaml")
 			b.ExportSetFormulaPath(fixtureFormulaPath)
