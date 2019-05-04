@@ -20,7 +20,6 @@ func TestTableWriter_Show(t *testing.T) {
 	cases := []struct {
 		name    string
 		plugins plugin.Plugins
-		want    string
 	}{
 		{
 			name: "show plugins table",
@@ -28,13 +27,6 @@ func TestTableWriter_Show(t *testing.T) {
 				{Name: "name", Filename: "filename", Description: "description"},
 				{Name: "name", Filename: "filename", Description: "description"},
 			},
-			want: `                                 
-  NAME   FILENAME   DESCRIPTION  
-                                 
-  name   filename   description  
-  name   filename   description  
-                                 
-`,
 		},
 	}
 
