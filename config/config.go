@@ -28,12 +28,15 @@ var (
 	newDefaultViperFunc = newDefaultViper
 	initConfigFunc      = initConfig
 	configDirFunc       = configDir
-	editFunc            = Edit
 )
 
 var (
 	defaultConfigDir  = ".config/bitbrew"
 	defaultConfigName = "config.yaml"
+)
+
+const (
+	DefaultGitHubToken = "<GITHUB_ACCESS_TOKEN>"
 )
 
 func New() (*Config, error) {
@@ -60,7 +63,7 @@ func newDefaultViper(configDir string) (*viper.Viper, error) {
 
 	v.SetDefault("bitbar.formula_path", filepath.Join(configDir, "formula.yaml"))
 	v.SetDefault("bitbar.plugin_folder", filepath.Join(configDir, "plugins"))
-	v.SetDefault("github.token", "<GITHUB_ACCESS_TOKEN>")
+	v.SetDefault("github.token", DefaultGitHubToken)
 
 	return v, nil
 }
@@ -77,9 +80,6 @@ func initConfig(configDir string) (*Config, error) {
 				return nil, err
 			}
 			if err := v.WriteConfigAs(filepath.Join(configDir, defaultConfigName)); err != nil {
-				return nil, err
-			}
-			if err := editFunc(); err != nil {
 				return nil, err
 			}
 		} else {
