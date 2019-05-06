@@ -1,0 +1,65 @@
+version: 2.1
+executors:
+  default:
+    docker:
+      - image: circleci/golang:1.12
+        environment:
+          GO111MODULE: "on"
+    working_directory: /go/src/github.com/micnncim/bitbrew
+commands:
+  restore_cache:
+    keys:
+      - go-mod-{{ checksum "go.sum" }}
+  - save_cache:
+      key: go-mod-{{ checksum "go.sum" }}
+      paths:
+        - /go/pkg/mod/cache
+  install_dep:
+    name: Install dependencies
+    command: make dep
+jobs:
+  build:
+    executor:
+      name: default
+    steps:
+      - checkout
+      - restore_cache
+      - install_dep
+      - save_cache
+      - run:
+          name: Run test and collect coverage
+          command: |
+            make coverage
+            bash <(curl -s https://codecov.io/bash)
+      - run:
+          name: Run linter
+          command: |
+            go get -u github.com/haya14busa/reviewdog/cmd/reviewdog
+            go get -u golang.org/x/lint/golint
+            make reviewdog
+  release:
+    executor:
+      name: default
+    steps:
+      - checkout
+      - restore_cache
+      - install_dep
+      - run:
+          name: Release by GoReleaser
+          command: curl -sL https://git.io/goreleaser | bash
+
+  workflows:
+    build_and_release:
+      jobs:
+        - build:
+            filters:
+              tags:
+                only: /.*/
+        - release:
+            requires:
+              - build
+            filters:
+              tags:
+                only: /.*/
+              branches:
+                ignore: /.*/
