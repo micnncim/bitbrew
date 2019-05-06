@@ -21,7 +21,7 @@ commands:
   install_dep:
     steps:
       - run:
-          command: go mod download
+          command: make dep
 jobs:
   build:
     executor:
@@ -53,18 +53,18 @@ jobs:
           name: Release by GoReleaser
           command: curl -sL https://git.io/goreleaser | bash
 
-  workflows:
-    build_and_release:
-      jobs:
-        - build:
-            filters:
-              tags:
-                only: /.*/
-        - release:
-            requires:
-              - build
-            filters:
-              tags:
-                only: /.*/
-              branches:
-                ignore: /.*/
+workflows:
+  build_and_release:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
+      - release:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
