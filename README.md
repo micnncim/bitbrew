@@ -1,0 +1,2 @@
+# bitbrew
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1c98509ea42f4c59955c24edbba4ef64)](https://app.codacy.com/app/micnncim/bitbrew?utm_source=github.com&utm_medium=referral&utm_content=micnncim/bitbrew&utm_campaign=Badge_Grade_Dashboard)
