@@ -31,11 +31,3 @@ func ExportSetNewDefaultViperFunc(f func(string) (*viper.Viper, error)) (resetFu
 		newDefaultViperFunc = org
 	}
 }
-
-func ExportSetEditFunc(f func() error) (resetFunc func()) {
-	var org func() error
-	org, editFunc = editFunc, f
-	return func() {
-		editFunc = org
-	}
-}

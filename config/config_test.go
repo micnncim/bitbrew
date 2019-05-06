@@ -130,9 +130,6 @@ func Test_initConfig(t *testing.T) {
 }
 
 func Test_initConfig_CreateIfNotExist(t *testing.T) {
-	// Disable Edit()
-	defer config.ExportSetEditFunc(func() error { return nil })()
-
 	tmpConfigDir := filepath.Join("testdata", "tmp")
 
 	cases := []struct {

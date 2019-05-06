@@ -4,9 +4,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 
+	"github.com/micnncim/bitbrew/bitbrew"
 	"github.com/micnncim/bitbrew/cli/ui"
 	"github.com/micnncim/bitbrew/config"
-	"github.com/micnncim/bitbrew/di"
 )
 
 func Uninstall(c *cli.Context) error {
@@ -19,24 +19,22 @@ func Uninstall(c *cli.Context) error {
 		return err
 	}
 
-	bitbrew, err := di.InitBitBrew(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
+	client, err := bitbrew.NewClient(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
 	if err != nil {
 		return err
 	}
 
-	if err := bitbrew.Load(); err != nil {
+	plugin, err := client.Uninstall(c.Args().First())
+	switch err {
+	case nil:
+	case bitbrew.ErrPluginNotFound:
+		ui.Errorf("%s. need to specify accurate filename\n", err)
+		return nil
+	default:
 		return err
 	}
-	for _, plugin := range bitbrew.Plugins() {
-		if plugin.Filename == c.Args().First() {
-			if err := bitbrew.Uninstall(plugin); err != nil {
-				return err
-			}
-			ui.Infof("✔ %s uninstalled!\n", plugin.Filename)
-			return nil
-		}
-	}
 
-	ui.Errorf("%s not found. need to specify accurate filename\n", c.Args().First())
+	ui.Infof("✔ %s uninstalled!\n", plugin.Filename)
+
 	return nil
 }

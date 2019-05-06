@@ -13,21 +13,21 @@ const (
 
 type Spinner struct {
 	spinner *spinner.Spinner
-	suffix  string
+	text    string
 }
 
-func NewSpinner(suffix string) *Spinner {
+func NewSpinner(text string) *Spinner {
 	return &Spinner{
 		spinner: spinner.New(spinner.CharSets[symbol], 100*time.Millisecond),
-		suffix:  suffix,
+		text:    text,
 	}
 }
 
 func (s *Spinner) Start() {
 	s.spinner.Writer = os.Stdout
 	s.spinner.Prefix = "\r"
-	if len(s.suffix) > 0 {
-		s.spinner.Suffix = "  " + s.suffix
+	if len(s.text) > 0 {
+		s.spinner.Suffix = "  " + s.text
 	}
 	s.spinner.HideCursor = true
 	s.spinner.Start()

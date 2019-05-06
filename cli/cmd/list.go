@@ -3,9 +3,9 @@ package cmd
 import (
 	"github.com/urfave/cli"
 
+	"github.com/micnncim/bitbrew/bitbrew"
 	"github.com/micnncim/bitbrew/cli/ui"
 	"github.com/micnncim/bitbrew/config"
-	"github.com/micnncim/bitbrew/di"
 )
 
 func List(c *cli.Context) error {
@@ -14,19 +14,21 @@ func List(c *cli.Context) error {
 		return err
 	}
 
-	bitbrew, err := di.InitBitBrew(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
+	client, err := bitbrew.NewClient(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
 	if err != nil {
 		return err
 	}
-	if err := bitbrew.Load(); err != nil {
+	plugins, err := client.List()
+	switch err {
+	case nil:
+	case bitbrew.ErrPluginNotFound:
+		ui.Errorf("%s. need to specify accurate filename\n", err)
+		return nil
+	default:
 		return err
 	}
 
-	if len(bitbrew.Plugins()) == 0 {
-		ui.Warnf("no plugins\n")
-		return nil
-	}
-	for _, p := range bitbrew.Plugins() {
+	for _, p := range plugins {
 		ui.Printf("%s\n", p.Filename)
 	}
 
