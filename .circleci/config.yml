@@ -7,25 +7,30 @@ executors:
           GO111MODULE: "on"
     working_directory: /go/src/github.com/micnncim/bitbrew
 commands:
-  restore_cache:
-    keys:
-      - go-mod-{{ checksum "go.sum" }}
-  - save_cache:
-      key: go-mod-{{ checksum "go.sum" }}
-      paths:
-        - /go/pkg/mod/cache
+  restore_dep:
+    steps:
+      - restore_cache:
+          keys:
+            - go-mod-{{ checksum "go.sum" }}
+  save_dep:
+    steps:
+      - save_cache:
+          key: go-mod-{{ checksum "go.sum" }}
+          paths:
+            - /go/pkg/mod/cache
   install_dep:
-    name: Install dependencies
-    command: make dep
+    steps:
+      - run:
+          command: go mod download
 jobs:
   build:
     executor:
       name: default
     steps:
       - checkout
-      - restore_cache
+      - restore_dep
       - install_dep
-      - save_cache
+      - save_dep
       - run:
           name: Run test and collect coverage
           command: |
@@ -42,7 +47,7 @@ jobs:
       name: default
     steps:
       - checkout
-      - restore_cache
+      - restore_dep
       - install_dep
       - run:
           name: Release by GoReleaser
