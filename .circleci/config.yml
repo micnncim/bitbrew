@@ -21,6 +21,7 @@ commands:
   install_dep:
     steps:
       - run:
+          name: Installing dependencies
           command: make dep
 jobs:
   build:
