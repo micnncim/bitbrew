@@ -1,5 +1,10 @@
 PKGS := $(shell go list ./... | grep -v vendor)
 
+.PHONY: dep
+dep:
+	go mod download
+	go mod verify
+
 .PHONY: test
 test:
 	go test -v -parallel=4 $(PKGS)
