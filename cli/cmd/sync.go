@@ -3,31 +3,27 @@ package cmd
 import (
 	"github.com/urfave/cli"
 
+	"github.com/micnncim/bitbrew/bitbrew"
 	"github.com/micnncim/bitbrew/cli/ui"
 	"github.com/micnncim/bitbrew/config"
-	"github.com/micnncim/bitbrew/di"
 )
 
 func Sync(c *cli.Context) error {
-	s := ui.NewSpinner("Syncing...")
-	s.Start()
-
 	conf, err := config.New()
 	if err != nil {
 		return err
 	}
 
-	bitbrew, err := di.InitBitBrew(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
+	client, err := bitbrew.NewClient(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
 	if err != nil {
 		return err
 	}
 
-	installed, uninstalled, err := bitbrew.Sync()
+	installed, uninstalled, err := client.Sync()
 	if err != nil {
 		return err
 	}
 
-	s.Stop()
 	for _, p := range installed {
 		ui.Infof("✔ %s installed!\n", p.Filename)
 	}
