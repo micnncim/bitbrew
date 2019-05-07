@@ -29,7 +29,11 @@ $ go get github.com/micnncim/bitbrew/cmd/bitbrew
 $ brew install micnncim/tap/bitbrew
 ```
 
-### Requirement
+### GitHub Releases
+
+Check out [Releases](https://github.com/micnncim/bitbrew/releases).
+
+## Requirement
 
 - [BitBar](https://github.com/matryer/bitbar)
 - [GitHub Access Token](https://github.com/settings/tokens)
