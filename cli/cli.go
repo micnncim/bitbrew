@@ -6,7 +6,7 @@ import (
 	"github.com/micnncim/bitbrew/cli/cmd"
 )
 
-const version = "0.1.0"
+const version = "0.1.1"
 
 func New(opts ...Option) *cli.App {
 	app := cli.NewApp()
