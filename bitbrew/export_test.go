@@ -31,3 +31,11 @@ func (b *ExportBitbrew) ExportSetFormulaPath(formulaPath string) {
 func (b *ExportBitbrew) ExportSetPluginFolder(pluginFolder string) {
 	b.pluginFolder = pluginFolder
 }
+
+func ExportSetOpenFunc(f func(string) error) (resetFunc func()) {
+	var org func(string) error
+	org, openFunc = openFunc, f
+	return func() {
+		openFunc = org
+	}
+}
