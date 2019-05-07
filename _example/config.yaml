@@ -1,0 +1,5 @@
+bitbar:
+  formula_path: /Users/micnncim/.config/bitbrew/formula.yaml
+  plugin_folder: /Users/micnncim/.config/bitbrew/plugins
+github:
+  token: <GITHUB_ACCESS_TOKEN>
