@@ -58,14 +58,9 @@ workflows:
   build_and_release:
     jobs:
       - build:
-          filters:
-            tags:
-              only: /.*/
       - release:
           requires:
             - build
           filters:
-            tags:
-              only: /.*/
             branches:
               ignore: /.*/
