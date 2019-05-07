@@ -17,6 +17,30 @@ import (
 
 var update = flag.Bool("update", false, "update golden files")
 
+func Test_bitbrew_Plugins(t *testing.T) {
+	cases := []struct {
+		name    string
+		plugins plugin.Plugins
+		want    plugin.Plugins
+	}{
+		{
+			name:    "return plugins",
+			plugins: plugin.Plugins{{Name: "name"}},
+			want:    plugin.Plugins{{Name: "name"}},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			b := new(bitbrew.ExportBitbrew)
+			b.ExportSetPlugins(tc.plugins)
+
+			got := b.Plugins()
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 func Test_bitbrew_Load(t *testing.T) {
 	cases := []struct {
 		name    string

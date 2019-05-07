@@ -30,7 +30,11 @@ var (
 	ErrPluginInstalled = errors.New("plugin already installed")
 )
 
-func NewClient(token, formulaPath, pluginFolder string) (Client, error) {
+var (
+	openFunc = open.Run
+)
+
+func InitClient(token, formulaPath, pluginFolder string) (Client, error) {
 	if token == "" || token == config.DefaultGitHubToken {
 		return nil, errors.New("github token is missing. run `bitbrew config`")
 	}
@@ -39,7 +43,11 @@ func NewClient(token, formulaPath, pluginFolder string) (Client, error) {
 		return nil, err
 	}
 	b := New(gh, formulaPath, pluginFolder)
-	return &client{Bitbrew: b}, nil
+	return NewClient(b), nil
+}
+
+func NewClient(b Bitbrew) Client {
+	return &client{Bitbrew: b}
 }
 
 func (c *client) Search(ctx context.Context, q string) (plugin.Plugins, error) {
@@ -67,7 +75,7 @@ func (c *client) Browse(ctx context.Context, filename string) error {
 	if len(plugins) == 0 {
 		return ErrPluginNotFound
 	}
-	return open.Run(plugins[0].BitBarURL)
+	return openFunc(plugins[0].BitBarURL)
 }
 
 func (c *client) List() (plugin.Plugins, error) {
@@ -93,7 +101,7 @@ func (c *client) Install(filename string) (*plugin.Plugin, error) {
 			return nil, ErrPluginInstalled
 		}
 	}
-	plugins, err := c.SearchByFilename(context.Background(), filename)
+	plugins, err := c.Bitbrew.SearchByFilename(context.Background(), filename)
 	if err != nil {
 		return nil, err
 	}
