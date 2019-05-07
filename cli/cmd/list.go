@@ -22,7 +22,7 @@ func List(c *cli.Context) error {
 	switch err {
 	case nil:
 	case bitbrew.ErrPluginNotFound:
-		ui.Errorf("%s. need to specify accurate filename\n", err)
+		ui.Warnf("%s\n", err)
 		return nil
 	default:
 		return err

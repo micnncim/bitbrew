@@ -17,13 +17,13 @@ func New(opts ...Option) *cli.App {
 		{
 			Name:    "install",
 			Aliases: []string{"i"},
-			Usage:   "bitbrew install FILENAME",
+			Usage:   "bitbrew install <FILENAME>",
 			Action:  cmd.Install,
 		},
 		{
 			Name:    "uninstall",
 			Aliases: []string{"u"},
-			Usage:   "bitbrew uninstall FILENAME",
+			Usage:   "bitbrew uninstall <FILENAME>",
 			Action:  cmd.Uninstall,
 		},
 		{
@@ -40,13 +40,13 @@ func New(opts ...Option) *cli.App {
 		{
 			Name:    "search",
 			Aliases: []string{"s"},
-			Usage:   "bitbrew search TEXT",
+			Usage:   "bitbrew search <TEXT>",
 			Action:  cmd.Search,
 		},
 		{
 			Name:    "browse",
 			Aliases: []string{"br"},
-			Usage:   "bitbrew browse FILENAME",
+			Usage:   "bitbrew browse <FILENAME>",
 			Action:  cmd.Browse,
 		},
 		{
