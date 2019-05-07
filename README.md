@@ -11,9 +11,9 @@
 
 ## Description
 
-[BitBar](https://github.com/matryer/bitbar) is empowered by your and third party's plugins. However it does not have a plugin manager. This is inconvenient for us (specially developers).  
-`Bitbrew` is a small but powerful package manager.  
-This supports installation, uninstallation and sync for [bitbar-plugins](https://github.com/matryer/bitbar-plugins).
+[BitBar](https://github.com/matryer/bitbar) is empowered by your and third party's plugins. However it does not have a plugin manager. This is inconvenient for us (specially developers).
+
+`Bitbrew` is a small but powerful package manager. This supports installation, uninstallation and sync for [bitbar-plugins](https://github.com/matryer/bitbar-plugins).
 
 ## Installation
 
@@ -36,10 +36,8 @@ $ brew install micnncim/tap/bitbrew
 
 ## Usage
 
-`Bitbrew` synchronizes your plugins to `formula.yaml`.  
-Every time you install or uninstall a plugin, your formula gets updated.  
-And you can configure a plugin folder and formula file path via `config.yaml`.
-Check out [example](./_example).  
+`Bitbrew` synchronizes your plugins to `formula.yaml`. Every time you install or uninstall a plugin, your formula gets updated. And you can configure a plugin folder and formula file path via `config.yaml`. Check out [example](./_example).
+
 You **NEED** specify the plugin folder as `BitBar Plugin Folder`.  
 
 You can also find the usage with `bitbrew help`.
@@ -68,7 +66,7 @@ Installs a plugin by specifying its filename. You can find a plugin's filename b
 
 ### Uninstall plugin
 
-Uninstalls a plugin by specifying its filename.
+Uninstalls a plugin by specifying its filename. You can find a plugin's filename by `bitbrew list`.
 
 ![uninstall](./_doc/uninstall.svg)
 
