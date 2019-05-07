@@ -21,7 +21,7 @@ func Browse(c *cli.Context) error {
 		return err
 	}
 
-	client, err := bitbrew.NewClient(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
+	client, err := bitbrew.InitClient(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
 	if err != nil {
 		return err
 	}
