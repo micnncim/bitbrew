@@ -87,6 +87,6 @@ It helps setup when you change your computer.
 - `bitbrew config`: Edits your `config.yaml`
 - `bitbrew browse`: Browses a plugin on https://getbitbar.com.
 
-## MIT
+## LICENSE
 
-[LICENSE](./LICENSE)
+[MIT](./LICENSE)
