@@ -13,7 +13,7 @@ import (
 
 type Service interface {
 	Search(ctx context.Context, q string) (plugin.Plugins, error)
-	SearchByFilename(ctx context.Context, q string) (plugin.Plugins, error)
+	SearchByFilename(ctx context.Context, filename string) (plugin.Plugins, error)
 }
 
 type githubSearchService interface {
@@ -100,12 +100,12 @@ func (s *service) Search(ctx context.Context, q string) (plugin.Plugins, error) 
 	return plugins, nil
 }
 
-func (s *service) SearchByFilename(ctx context.Context, q string) (plugin.Plugins, error) {
+func (s *service) SearchByFilename(ctx context.Context, filename string) (plugin.Plugins, error) {
 	opt := github.ListOptions{PerPage: 20}
 	var plugins plugin.Plugins
 
 	for {
-		result, resp, err := s.githubSearchService.Code(ctx, q, &github.SearchOptions{
+		result, resp, err := s.githubSearchService.Code(ctx, filename, &github.SearchOptions{
 			ListOptions: opt,
 		})
 		if err != nil {

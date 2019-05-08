@@ -156,3 +156,84 @@ func Test_service_Search(t *testing.T) {
 		})
 	}
 }
+
+func Test_service_SearchByFilename(t *testing.T) {
+	cases := []struct {
+		name     string
+		codeFunc func(ctx context.Context, query string, opt *gogithub.SearchOptions) (*gogithub.CodeSearchResult, *gogithub.Response, error)
+		want     plugin.Plugins
+		wantErr  bool
+	}{
+		{
+			name: "found plugins",
+			codeFunc: func(ctx context.Context, query string, opt *gogithub.SearchOptions) (*gogithub.CodeSearchResult, *gogithub.Response, error) {
+				name, path, url := "filename", "path", "url"
+				ownerName, repoName := "owner", "repo"
+				return &gogithub.CodeSearchResult{
+					CodeResults: []gogithub.CodeResult{
+						{
+							Name:    &name,
+							Path:    &path,
+							HTMLURL: &url,
+							Repository: &gogithub.Repository{
+								Name: &repoName,
+								Owner: &gogithub.User{
+									Login: &ownerName,
+								},
+							},
+						},
+						{
+							Name:    &name,
+							Path:    &path,
+							HTMLURL: &url,
+							Repository: &gogithub.Repository{
+								Name: &repoName,
+								Owner: &gogithub.User{
+									Login: &ownerName,
+								},
+							},
+						},
+					},
+				}, &gogithub.Response{}, nil
+			},
+			want: plugin.Plugins{
+				{
+					Filename:     "filename",
+					Path:         "path",
+					BitBarURL:    fmt.Sprintf(github.ExportBaseBitBarURL, "path"),
+					GitHubURL:    "url",
+					GitHubRawURL: fmt.Sprintf(github.ExportBaseGitHubRawURL, "owner", "repo", "path"),
+				},
+				{
+					Filename:     "filename",
+					Path:         "path",
+					BitBarURL:    fmt.Sprintf(github.ExportBaseBitBarURL, "path"),
+					GitHubURL:    "url",
+					GitHubRawURL: fmt.Sprintf(github.ExportBaseGitHubRawURL, "owner", "repo", "path"),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "github client error",
+			codeFunc: func(ctx context.Context, query string, opt *gogithub.SearchOptions) (*gogithub.CodeSearchResult, *gogithub.Response, error) {
+				return nil, nil, errors.New("error")
+			},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+
+	for _, tc := range cases {
+		s := new(github.ExportService)
+		s.ExportSetGithubSearchService(&fakeGithubSearchService{
+			code: tc.codeFunc,
+		})
+
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := s.SearchByFilename(context.Background(), "q")
+			assert.Equal(t, tc.want, got)
+			assert.Equal(t, tc.wantErr, err != nil)
+		})
+	}
+}
