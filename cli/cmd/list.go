@@ -8,13 +8,21 @@ import (
 	"github.com/micnncim/bitbrew/config"
 )
 
+var (
+	listFunc = list
+)
+
 func List(c *cli.Context) error {
+	return listFunc()
+}
+
+func list() error {
 	conf, err := config.New()
 	if err != nil {
 		return err
 	}
 
-	client, err := bitbrew.InitClient(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
+	client, err := initBitbrewClient(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
 	if err != nil {
 		return err
 	}

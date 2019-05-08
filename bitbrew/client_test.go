@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/magiconair/properties/assert"
 	"github.com/pkg/errors"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/micnncim/bitbrew/bitbrew"
 	"github.com/micnncim/bitbrew/plugin"
