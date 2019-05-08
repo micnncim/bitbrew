@@ -18,8 +18,8 @@ changelog:
   sort: asc
   filters:
     exclude:
-    - '^docs:'
-    - '^test:'
+    - '^Fix'
+    - '^Refactor'
 brew:
   github:
     owner: micnncim
