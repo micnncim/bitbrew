@@ -9,22 +9,29 @@ import (
 	"github.com/micnncim/bitbrew/config"
 )
 
+var (
+	installFunc = install
+)
+
 func Install(c *cli.Context) error {
 	if len(c.Args()) != 1 {
 		return errors.New("invalid argument")
 	}
+	return installFunc(c.Args().First())
+}
 
+func install(filename string) error {
 	conf, err := config.New()
 	if err != nil {
 		return err
 	}
 
-	client, err := bitbrew.InitClient(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
+	client, err := initBitbrewClient(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
 	if err != nil {
 		return err
 	}
 
-	plugin, err := client.Install(c.Args().First())
+	plugin, err := client.Install(filename)
 	switch err {
 	case nil:
 	case bitbrew.ErrPluginNotFound:

@@ -3,18 +3,25 @@ package cmd
 import (
 	"github.com/urfave/cli"
 
-	"github.com/micnncim/bitbrew/bitbrew"
 	"github.com/micnncim/bitbrew/cli/ui"
 	"github.com/micnncim/bitbrew/config"
 )
 
+var (
+	syncFunc = sync
+)
+
 func Sync(c *cli.Context) error {
+	return syncFunc()
+}
+
+func sync() error {
 	conf, err := config.New()
 	if err != nil {
 		return err
 	}
 
-	client, err := bitbrew.InitClient(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
+	client, err := initBitbrewClient(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
 	if err != nil {
 		return err
 	}

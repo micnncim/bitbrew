@@ -12,23 +12,30 @@ import (
 	"github.com/micnncim/bitbrew/config"
 )
 
+var (
+	searchFunc = search
+)
+
 func Search(c *cli.Context) error {
 	if len(c.Args()) != 1 {
 		return errors.New("invalid argument")
 	}
+	return searchFunc(c.Args().First())
+}
 
+func search(q string) error {
 	conf, err := config.New()
 	if err != nil {
 		return err
 	}
 
-	client, err := bitbrew.InitClient(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
+	client, err := initBitbrewClient(conf.GitHub.Token, conf.BitBar.FormulaPath, conf.BitBar.PluginFolder)
 	if err != nil {
 		return err
 	}
 
 	ctx := context.Background()
-	plugins, err := client.Search(ctx, c.Args().First())
+	plugins, err := client.Search(ctx, q)
 	switch err {
 	case nil:
 	case bitbrew.ErrPluginNotFound:

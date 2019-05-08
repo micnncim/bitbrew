@@ -7,7 +7,6 @@ require (
 	github.com/briandowns/spinner v0.0.0-20190319032542-ac46072a5a91
 	github.com/fatih/color v1.7.0
 	github.com/google/go-github v17.0.0+incompatible
-	github.com/magiconair/properties v1.8.0
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
