@@ -10,6 +10,7 @@ var (
 	ExportUninstallFunc = uninstallFunc
 	ExportSearchFunc    = searchFunc
 	ExportSyncFunc      = syncFunc
+	ExportListFunc      = listFunc
 )
 
 func ExportSetInitBitbrewClient(f func(token, formulaPath, pluginFolder string) (bitbrew.Client, error)) (resetFunc func()) {
