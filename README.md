@@ -6,6 +6,8 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/6481fea60b20eefb9af9/maintainability)](https://codeclimate.com/github/micnncim/bitbrew/maintainability)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1b68067c1d53421e96eee157d8fc349f)](https://www.codacy.com/app/micnncim/bitbrew?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=micnncim/bitbrew&amp;utm_campaign=Badge_Grade)
 [![CodeFactor](https://www.codefactor.io/repository/github/micnncim/bitbrew/badge)](https://www.codefactor.io/repository/github/micnncim/bitbrew)
+[![codebeat badge](https://codebeat.co/badges/9b906c1d-c209-4a9d-a560-5f866d296378)](https://codebeat.co/projects/github-com-micnncim-bitbrew-master)
+
 
 ![bitbrew](./_doc/bitbrew.svg)
 
