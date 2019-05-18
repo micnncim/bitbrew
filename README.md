@@ -1,6 +1,6 @@
 # bitbrew
 
-[![CircleCI](https://circleci.com/gh/micnncim/bitbrew.svg?style=svg)](https://circleci.com/gh/micnncim/bitbrew)
+[![CircleCI](https://img.shields.io/circleci/project/github/micnncim/bitbrew.svg?label=circleci&logo=circleci)](https://circleci.com/gh/micnncim/bitbrew)
 [![Go Report Card](https://goreportcard.com/badge/github.com/micnncim/bitbrew)](https://goreportcard.com/report/github.com/micnncim/bitbrew)
 [![codecov](https://codecov.io/gh/micnncim/bitbrew/branch/master/graph/badge.svg)](https://codecov.io/gh/micnncim/bitbrew)
 [![Maintainability](https://api.codeclimate.com/v1/badges/6481fea60b20eefb9af9/maintainability)](https://codeclimate.com/github/micnncim/bitbrew/maintainability)
