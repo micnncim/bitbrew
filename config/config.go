@@ -5,7 +5,6 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
@@ -95,7 +94,7 @@ func initConfig(configDir string) (*Config, error) {
 }
 
 func configDir() (string, error) {
-	home, err := homedir.Dir()
+	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
