@@ -2,9 +2,9 @@ package ui
 
 import (
 	"io"
-	"os"
 
 	"github.com/fatih/color"
+	"github.com/mattn/go-colorable"
 )
 
 type UI interface {
@@ -35,7 +35,7 @@ type CLI struct {
 	Stderr io.Writer
 }
 
-var defaultUI = &CLI{Stdout: os.Stdout, Stderr: os.Stderr}
+var defaultUI = &CLI{Stdout: colorable.NewColorableStdout(), Stderr: colorable.NewColorableStderr()}
 
 func (c *CLI) Printf(format string, args ...interface{}) {
 	color.New(color.FgHiBlue).Fprintf(c.Stdout, format, args...)
