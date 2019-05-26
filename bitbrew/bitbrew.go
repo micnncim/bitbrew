@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -20,6 +21,7 @@ const (
 	pluginRepo = "matryer/bitbar-plugins"
 )
 
+// Bitbrew is an interface handling BitBar plugins
 type Bitbrew interface {
 	Plugins() plugin.Plugins
 	Search(ctx context.Context, q string) (plugin.Plugins, error)
@@ -42,6 +44,7 @@ var (
 	ErrFormulaNotExist = errors.New("formula does not exist")
 )
 
+// New instantiate Bitbrew
 func New(gh github.Service, formulaPath, pluginFolder string) Bitbrew {
 	return &bitbrew{
 		github:       gh,
@@ -50,20 +53,24 @@ func New(gh github.Service, formulaPath, pluginFolder string) Bitbrew {
 	}
 }
 
+// Plugins is a getter for bitbrew.plugins
 func (b *bitbrew) Plugins() plugin.Plugins {
 	return b.plugins
 }
 
+// Search is a wrapper for github.Search
 func (b *bitbrew) Search(ctx context.Context, q string) (plugin.Plugins, error) {
 	q = fmt.Sprintf("%s bitbar title desc repo:%s", q, pluginRepo)
 	return b.github.Search(ctx, q)
 }
 
+// SearchByFilename is a wrapper for github.SearchByFilename
 func (b *bitbrew) SearchByFilename(ctx context.Context, filename string) (plugin.Plugins, error) {
 	q := fmt.Sprintf("filename:%s repo:%s", filename, pluginRepo)
 	return b.github.SearchByFilename(ctx, q)
 }
 
+// Load loads a formula file into bitbrew.plugins
 func (b *bitbrew) Load() error {
 	if !b.formulaExists() {
 		return ErrFormulaNotExist
@@ -82,6 +89,7 @@ func (b *bitbrew) Load() error {
 	return nil
 }
 
+// Save saves bitbrew.plugins in a formula file
 func (b *bitbrew) Save() error {
 	if !b.formulaExists() {
 		f, err := os.Create(b.formulaPath)
@@ -105,6 +113,7 @@ func (b *bitbrew) formulaExists() bool {
 	return err == nil
 }
 
+// Install is a wrapper for download and addFormula
 func (b *bitbrew) Install(p *plugin.Plugin) error {
 	if err := b.download(p); err != nil {
 		return err
@@ -112,6 +121,7 @@ func (b *bitbrew) Install(p *plugin.Plugin) error {
 	return b.addFormula(p)
 }
 
+// Uninstall is a wrapper for remove and removeFormula
 func (b *bitbrew) Uninstall(p *plugin.Plugin) error {
 	if err := b.remove(p); err != nil {
 		return err
@@ -120,7 +130,7 @@ func (b *bitbrew) Uninstall(p *plugin.Plugin) error {
 }
 
 func (b *bitbrew) download(ps ...*plugin.Plugin) error {
-	eg := errgroup.Group{}
+	var eg errgroup.Group
 	for _, p := range ps {
 		p := p
 		eg.Go(func() error {
@@ -129,12 +139,19 @@ func (b *bitbrew) download(ps ...*plugin.Plugin) error {
 				return err
 			}
 			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				return fmt.Errorf("bad status: %s", resp.Status)
+			}
 
-			buf, err := ioutil.ReadAll(resp.Body)
+			dst, err := os.Create(filepath.Join(b.pluginFolder, p.Filename))
 			if err != nil {
 				return err
 			}
-			return ioutil.WriteFile(filepath.Join(b.pluginFolder, p.Filename), buf, 0755)
+
+			if _, err := io.Copy(dst, resp.Body); err != nil {
+				return err
+			}
+			return nil
 		})
 		if err := eg.Wait(); err != nil {
 			return err
@@ -144,7 +161,7 @@ func (b *bitbrew) download(ps ...*plugin.Plugin) error {
 }
 
 func (b *bitbrew) remove(ps ...*plugin.Plugin) error {
-	eg := errgroup.Group{}
+	var eg errgroup.Group
 	for _, p := range ps {
 		p := p
 		eg.Go(func() error {
@@ -186,6 +203,7 @@ func (b *bitbrew) removeFormula(p *plugin.Plugin) error {
 	return b.Save()
 }
 
+// Sync syncs a formula file and installed plugins in local
 func (b *bitbrew) Sync() (installed plugin.Plugins, uninstalled plugin.Plugins, err error) {
 	var shouldInstall, shouldUninstall plugin.Plugins
 	shouldInstall, shouldUninstall, err = b.diff()

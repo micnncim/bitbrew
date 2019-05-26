@@ -12,6 +12,7 @@ import (
 	"github.com/micnncim/bitbrew/plugin"
 )
 
+// Client is a client for Bitbrew
 type Client interface {
 	Search(ctx context.Context, q string) (plugin.Plugins, error)
 	Browse(ctx context.Context, filename string) error
@@ -50,6 +51,7 @@ func NewClient(b Bitbrew) Client {
 	return &client{Bitbrew: b}
 }
 
+// Search is a wrapper for Bitbrew.Search with UI
 func (c *client) Search(ctx context.Context, q string) (plugin.Plugins, error) {
 	s := ui.NewSpinner("Searching...")
 	s.Start()
@@ -64,6 +66,7 @@ func (c *client) Search(ctx context.Context, q string) (plugin.Plugins, error) {
 	return plugins, nil
 }
 
+// Browse searches and open plugin's URL
 func (c *client) Browse(ctx context.Context, filename string) error {
 	s := ui.NewSpinner("Searching...")
 	s.Start()
@@ -78,6 +81,7 @@ func (c *client) Browse(ctx context.Context, filename string) error {
 	return openFunc(plugins[0].BitBarURL)
 }
 
+// List prints installed plugins
 func (c *client) List() (plugin.Plugins, error) {
 	if err := c.Bitbrew.Load(); err != nil {
 		return nil, err
@@ -89,6 +93,7 @@ func (c *client) List() (plugin.Plugins, error) {
 	return plugins, nil
 }
 
+// Install installs specified plugin
 func (c *client) Install(filename string) (*plugin.Plugin, error) {
 	s := ui.NewSpinner("Installing...")
 	s.Start()
@@ -115,6 +120,7 @@ func (c *client) Install(filename string) (*plugin.Plugin, error) {
 	return p, nil
 }
 
+// Uninstall uninstalls specified plugin
 func (c *client) Uninstall(filename string) (*plugin.Plugin, error) {
 	s := ui.NewSpinner("Uninstalling...")
 	s.Start()
@@ -133,6 +139,7 @@ func (c *client) Uninstall(filename string) (*plugin.Plugin, error) {
 	return nil, ErrPluginNotFound
 }
 
+// Sync is a wrapper for Bitbrew.Sync with UI
 func (c *client) Sync() (installed plugin.Plugins, uninstalled plugin.Plugins, err error) {
 	s := ui.NewSpinner("Syncing...")
 	s.Start()

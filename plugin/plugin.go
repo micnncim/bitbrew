@@ -1,5 +1,6 @@
 package plugin
 
+// Plugin is a BitBar plugin
 type Plugin struct {
 	Name         string `yaml:",omitempty"`
 	Filename     string `yaml:",omitempty"`
