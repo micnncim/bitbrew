@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -120,7 +121,7 @@ func (b *bitbrew) Uninstall(p *plugin.Plugin) error {
 }
 
 func (b *bitbrew) download(ps ...*plugin.Plugin) error {
-	eg := errgroup.Group{}
+	var eg errgroup.Group
 	for _, p := range ps {
 		p := p
 		eg.Go(func() error {
@@ -129,12 +130,19 @@ func (b *bitbrew) download(ps ...*plugin.Plugin) error {
 				return err
 			}
 			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				return fmt.Errorf("bad status: %s", resp.Status)
+			}
 
-			buf, err := ioutil.ReadAll(resp.Body)
+			dst, err := os.Create(filepath.Join(b.pluginFolder, p.Filename))
 			if err != nil {
 				return err
 			}
-			return ioutil.WriteFile(filepath.Join(b.pluginFolder, p.Filename), buf, 0755)
+
+			if _, err := io.Copy(dst, resp.Body); err != nil {
+				return err
+			}
+			return nil
 		})
 		if err := eg.Wait(); err != nil {
 			return err
@@ -144,7 +152,7 @@ func (b *bitbrew) download(ps ...*plugin.Plugin) error {
 }
 
 func (b *bitbrew) remove(ps ...*plugin.Plugin) error {
-	eg := errgroup.Group{}
+	var eg errgroup.Group
 	for _, p := range ps {
 		p := p
 		eg.Go(func() error {

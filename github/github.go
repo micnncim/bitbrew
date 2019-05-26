@@ -25,9 +25,9 @@ type service struct {
 }
 
 const (
-	// baseGitHubRawURL: https://raw.githubusercontent.com/matryer/bitbar-plugins/master/Dev/Homebrew/brew-services.10m.rb
+	// e.g.) https://raw.githubusercontent.com/matryer/bitbar-plugins/master/Dev/Homebrew/brew-services.10m.rb
 	baseGitHubRawURL = "https://raw.githubusercontent.com/%s/%s/master/%s"
-	// baseBitBarURL: https://getbitbar.com/plugins/Dev/Homebrew/brew-services.10m.rb
+	// e.g.) https://getbitbar.com/plugins/Dev/Homebrew/brew-services.10m.rb
 	baseBitBarURL = "https://getbitbar.com/plugins/%s"
 )
 
