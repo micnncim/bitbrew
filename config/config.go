@@ -9,16 +9,19 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Config represent a config file for CLI
 type Config struct {
 	*BitBar
 	*GitHub
 }
 
+// BitBar represent a BitBar config for CLI
 type BitBar struct {
 	FormulaPath  string `mapstructure:"formula_path"`
 	PluginFolder string `mapstructure:"plugin_folder"`
 }
 
+// GitHub represent a GitHub config for CLI
 type GitHub struct {
 	Token string
 }
@@ -38,6 +41,7 @@ const (
 	DefaultGitHubToken = "<GITHUB_ACCESS_TOKEN>"
 )
 
+// New instantiate Config
 func New() (*Config, error) {
 	configDir, err := configDirFunc()
 	if err != nil {
@@ -101,6 +105,7 @@ func configDir() (string, error) {
 	return filepath.Join(home, defaultConfigDir), nil
 }
 
+// Edit open a config file with editor
 func Edit() error {
 	editor := getEditor()
 	if editor == "" {

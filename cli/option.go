@@ -6,6 +6,7 @@ import (
 	"github.com/urfave/cli"
 )
 
+// Option is an option for cli
 type Option func(*cli.App)
 
 func Writer(w io.Writer) Option {

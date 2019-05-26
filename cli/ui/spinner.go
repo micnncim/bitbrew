@@ -11,11 +11,13 @@ const (
 	symbol = 14
 )
 
+// Spinner is a spinner for CLI
 type Spinner struct {
 	spinner *spinner.Spinner
 	text    string
 }
 
+// NewSpinner instantiate Spinner
 func NewSpinner(text string) *Spinner {
 	return &Spinner{
 		spinner: spinner.New(spinner.CharSets[symbol], 100*time.Millisecond),
