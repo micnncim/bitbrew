@@ -21,6 +21,11 @@ lint:
 coverage:
 	go test -v -race -covermode=atomic -coverpkg=./... -coverprofile=coverage.txt ./...
 
+.PHONY: tools
+tools:
+	go get github.com/reviewdog/reviewdog/cmd/reviewdog
+	go get golang.org/x/lint/golint
+
 .PHONY: reviewdog
-reviewdog:
+reviewdog: tools
 	reviewdog -reporter=github-pr-review
