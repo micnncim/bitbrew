@@ -40,8 +40,6 @@ jobs:
       - run:
           name: Run linter
           command: |
-            go get github.com/reviewdog/reviewdog/cmd/reviewdog
-            go get golang.org/x/lint/golint
             make reviewdog
   release:
     executor:
