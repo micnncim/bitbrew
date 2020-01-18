@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/micnncim/bitbrew/cli"
+	"github.com/micnncim/bitbrew/pkg/cli"
 )
 
 func main() {
