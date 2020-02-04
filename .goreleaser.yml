@@ -24,14 +24,14 @@ changelog:
     exclude:
     - '^Fix'
     - '^Refactor'
-brew:
-  github:
-    owner: micnncim
-    name: homebrew-tap
-  folder: Formula
-  description: "bitbrew: BitBar plugin manager"
-  homepage: "https://github.com/micnncim/bitbrew"
-  install: |
-    bin.install "bitbrew"
-  test: |
-    system "#{bin}/bitbrew"
+brews:
+  - github:
+      owner: micnncim
+      name: homebrew-tap
+    folder: Formula
+    description: "bitbrew: BitBar plugin manager"
+    homepage: "https://github.com/micnncim/bitbrew"
+    install: |
+      bin.install "bitbrew"
+    test: |
+      system "#{bin}/bitbrew"
