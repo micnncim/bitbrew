@@ -1,13 +1,10 @@
 # bitbrew
 
-[![CircleCI](https://img.shields.io/circleci/project/github/micnncim/bitbrew.svg?label=circleci&logo=circleci)](https://circleci.com/gh/micnncim/bitbrew)
-[![Go Report Card](https://goreportcard.com/badge/github.com/micnncim/bitbrew)](https://goreportcard.com/report/github.com/micnncim/bitbrew)
-[![codecov](https://codecov.io/gh/micnncim/bitbrew/branch/master/graph/badge.svg)](https://codecov.io/gh/micnncim/bitbrew)
-[![Maintainability](https://api.codeclimate.com/v1/badges/6481fea60b20eefb9af9/maintainability)](https://codeclimate.com/github/micnncim/bitbrew/maintainability)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1b68067c1d53421e96eee157d8fc349f)](https://www.codacy.com/app/micnncim/bitbrew?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=micnncim/bitbrew&amp;utm_campaign=Badge_Grade)
-[![CodeFactor](https://www.codefactor.io/repository/github/micnncim/bitbrew/badge)](https://www.codefactor.io/repository/github/micnncim/bitbrew)
-[![codebeat badge](https://codebeat.co/badges/9b906c1d-c209-4a9d-a560-5f866d296378)](https://codebeat.co/projects/github-com-micnncim-bitbrew-master)
-
+[![actions-workflow-Test][actions-workflow-Test-badge]][actions-workflow-Test]
+[![codecov][codecov-badge]][codecov]
+[![codefactor][codefactor-badge]][codefactor]
+[![release][release-badge]][release]
+[![license][license-badge]][license] 
 
 ![bitbrew](./_doc/bitbrew.svg)
 
@@ -89,6 +86,16 @@ It helps setup when you change your computer.
 - `bitbrew config`: Edits your `config.yaml`
 - `bitbrew browse`: Browses a plugin on https://getbitbar.com.
 
-## LICENSE
+<!-- badge links -->
 
-[MIT](./LICENSE)
+[actions-workflow-Test]: https://github.com/micnncim/bitbrew/actions?query=workflow%3ATest
+[codecov]: https://codecov.io/gh/micnncim/bitbrew
+[codefactor]: https://www.codefactor.io/repository/github/micnncim/bitbrew
+[release]: https://github.com/micnncim/bitbrew/releases
+[license]: LICENSE
+
+[actions-workflow-Test-badge]: https://img.shields.io/github/workflow/status/micnncim/bitbrew/Test?label=Test&style=for-the-badge&logo=github
+[codecov-badge]: https://img.shields.io/codecov/c/github/micnncim/bitbrew?style=for-the-badge&logo=codecov
+[codefactor-badge]: https://img.shields.io/codefactor/grade/github/micnncim/bitbrew?logo=codefactor&style=for-the-badge
+[release-badge]: https://img.shields.io/github/v/release/micnncim/bitbrew?style=for-the-badge&logo=github
+[license-badge]: https://img.shields.io/github/license/micnncim/bitbrew?style=for-the-badge
